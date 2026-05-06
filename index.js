@@ -19,28 +19,26 @@ Tu as accès aux informations de suivi en temps réel via PacklinkPro.
 TRANSPORTEURS : Colis Privé, Mondial Relay, UPS, Chronopost, Colissimo (France et Europe)
 
 STATUTS EN TRANSIT :
-- "En transit" / "In transit" → en route, normal sous 2-3 jours
-- "En attente" / "Pending" → normal sous 24h
-- "En instance" / "Avis de passage" → tentative échouée, inviter à reprogrammer
-- "Delivered" / "Livré" → voir procédure litige si contesté
-- "Incident" / "Anomalie" → escalader à mlecflow@gmail.com
+- "En transit" → en route, normal sous 2-3 jours
+- "En attente" → normal sous 24h
+- "En instance" → tentative échouée, inviter à reprogrammer
+- "Livré" contesté → voir procédure litige
+- "Incident" → escalader à mlecflow@gmail.com
 - Pas de mouvement +5 jours ouvrés → investigation à ouvrir
 
 COLIS LIVRÉ MAIS NON REÇU :
 Étape 1 - Vérifications : boîte aux lettres, voisins, point relais, avis de passage
-Étape 2 - Si toujours pas trouvé, demander d'envoyer à mlecflow@gmail.com :
+Étape 2 - Demander d'envoyer à mlecflow@gmail.com :
   - Objet : "Contestation livraison - N° de suivi XXXXX"
-  - Lettre sur l'honneur (modèle si demandé : "Je soussigné(e) [Prénom Nom], demeurant au [adresse], atteste sur l'honneur ne pas avoir reçu le colis n°[numéro] commandé le [date] sur Amazon. Fait à [ville], le [date]. Signature.")
+  - Lettre sur l'honneur
   - Pièce d'identité (CNI ou passeport)
-Ne jamais promettre un remboursement immédiat sur un colis marqué livré sans les documents.
+Ne jamais promettre un remboursement immédiat sans les documents.
 
-RETARD : excuses sincères + statut PacklinkPro + investigation si +5 jours sans mouvement.
-RETOUR : accepté sous 30 jours, produit non utilisé. Via Amazon ou mlecflow@gmail.com. Remboursement sous 5-7 jours.
+RETOUR : accepté sous 30 jours, produit non utilisé. Remboursement sous 5-7 jours.
 PRODUIT DÉFECTUEUX : photo demandée + échange ou remboursement au choix client.
+RÈGLES : vouvoyer, ton chaleureux, réponses courtes (4-5 phrases max), contact : mlecflow@gmail.com`;
 
-RÈGLES : vouvoyer par défaut, ton chaleureux et professionnel, réponses courtes (4-5 phrases max), toujours une action concrète, jamais inventer d'informations. Contact : mlecflow@gmail.com`;
-
-// ─── AMAZON ───────────────────────────────────────────────
+// ─── AMAZON TOKEN ─────────────────────────────────────────
 async function getAmazonAccessToken() {
   const response = await axios.post(
     "https://api.amazon.com/auth/o2/token",
@@ -55,29 +53,49 @@ async function getAmazonAccessToken() {
   return response.data.access_token;
 }
 
-// ─── PACKLINK ──────────────────────────────────────────────
-async function searchPacklinkByOrder(orderId) {
+// ─── AMAZON MESSAGES ──────────────────────────────────────
+async function getUnreadMessages(accessToken) {
   try {
     const response = await axios.get(
-      `https://apisandbox.packlink.com/v1/shipments?source=amazon&order_id=${orderId}`,
+      "https://sellingpartnerapi-eu.amazon.com/messaging/v1/orders?marketplaceIds=A13V1IB3VIYZZH",
       {
         headers: {
-          "Authorization": PACKLINK_API_KEY,
+          "x-amz-access-token": accessToken,
           "Content-Type": "application/json",
         },
       }
     );
     return response.data;
   } catch (error) {
-    console.error("Erreur PacklinkPro order search:", error.message);
+    console.error("Erreur lecture messages Amazon:", error.message);
     return null;
   }
 }
 
-async function searchPacklinkByName(customerName) {
+async function replyToAmazonMessage(accessToken, orderId, message) {
+  try {
+    const response = await axios.post(
+      `https://sellingpartnerapi-eu.amazon.com/messaging/v1/orders/${orderId}/messages/confirmCustomizationDetails`,
+      { text: message },
+      {
+        headers: {
+          "x-amz-access-token": accessToken,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Erreur réponse Amazon:", error.message);
+    return null;
+  }
+}
+
+// ─── PACKLINK ─────────────────────────────────────────────
+async function searchPacklinkByOrder(orderId) {
   try {
     const response = await axios.get(
-      `https://apisandbox.packlink.com/v1/shipments?to=${encodeURIComponent(customerName)}`,
+      `https://api.packlink.com/v1/shipments?source=amazon&order_id=${orderId}`,
       {
         headers: {
           "Authorization": PACKLINK_API_KEY,
@@ -87,7 +105,7 @@ async function searchPacklinkByName(customerName) {
     );
     return response.data;
   } catch (error) {
-    console.error("Erreur PacklinkPro name search:", error.message);
+    console.error("Erreur PacklinkPro:", error.message);
     return null;
   }
 }
@@ -95,7 +113,7 @@ async function searchPacklinkByName(customerName) {
 async function getPacklinkTracking(shipmentRef) {
   try {
     const response = await axios.get(
-      `https://apisandbox.packlink.com/v1/shipments/${shipmentRef}/track`,
+      `https://api.packlink.com/v1/shipments/${shipmentRef}/track`,
       {
         headers: {
           "Authorization": PACKLINK_API_KEY,
@@ -105,23 +123,23 @@ async function getPacklinkTracking(shipmentRef) {
     );
     return response.data;
   } catch (error) {
-    console.error("Erreur PacklinkPro tracking:", error.message);
+    console.error("Erreur tracking PacklinkPro:", error.message);
     return null;
   }
 }
 
 // ─── CLAUDE ───────────────────────────────────────────────
-async function generateReply(customerMessage, trackingInfo = null) {
-  let context = customerMessage;
-  if (trackingInfo) {
-    context = `[INFORMATIONS SUIVI PACKLINK]\n${JSON.stringify(trackingInfo, null, 2)}\n\n[MESSAGE CLIENT]\n${customerMessage}`;
-  }
+async function generateReply(customerMessage, trackingInfo = null, orderInfo = null) {
+  let context = "";
+  if (orderInfo) context += `[COMMANDE AMAZON]\n${JSON.stringify(orderInfo, null, 2)}\n\n`;
+  if (trackingInfo) context += `[SUIVI PACKLINK EN TEMPS RÉEL]\n${JSON.stringify(trackingInfo, null, 2)}\n\n`;
+  context += `[MESSAGE CLIENT]\n${customerMessage}`;
 
   const response = await axios.post(
     "https://api.anthropic.com/v1/messages",
     {
       model: "claude-sonnet-4-20250514",
-      max_tokens: 1000,
+      max_tokens: 600,
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content: context }],
     },
@@ -136,13 +154,63 @@ async function generateReply(customerMessage, trackingInfo = null) {
   return response.data.content[0].text;
 }
 
+// ─── TRAITEMENT AUTO MESSAGES AMAZON ──────────────────────
+async function processAmazonMessages() {
+  try {
+    console.log("🔄 Vérification messages Amazon...");
+    const accessToken = await getAmazonAccessToken();
+    const messages = await getUnreadMessages(accessToken);
+
+    if (!messages || !messages.orders) {
+      console.log("Aucun message à traiter");
+      return { processed: 0 };
+    }
+
+    let processed = 0;
+    for (const order of messages.orders) {
+      const orderId = order.orderId;
+      const customerMessage = order.latestMessage?.text;
+      if (!customerMessage) continue;
+
+      // Cherche le suivi PacklinkPro
+      let trackingInfo = null;
+      const shipments = await searchPacklinkByOrder(orderId);
+      if (shipments && shipments.length > 0) {
+        trackingInfo = await getPacklinkTracking(shipments[0].reference);
+      }
+
+      // Génère la réponse Claude
+      const reply = await generateReply(customerMessage, trackingInfo, { orderId });
+
+      // Répond sur Amazon
+      await replyToAmazonMessage(accessToken, orderId, reply);
+      processed++;
+      console.log(`✅ Répondu à la commande ${orderId}`);
+    }
+
+    return { processed };
+  } catch (error) {
+    console.error("Erreur traitement messages:", error.message);
+    return { error: error.message };
+  }
+}
+
+// Lance la vérification toutes les 5 minutes
+setInterval(processAmazonMessages, 5 * 60 * 1000);
+
 // ─── ROUTES ───────────────────────────────────────────────
 app.get("/health", (req, res) => {
   res.json({
     status: "BarberCosmetic SAV en ligne ✅",
     transporteurs: ["Colis Privé", "Mondial Relay", "UPS", "Chronopost", "Colissimo"],
     packlink: PACKLINK_API_KEY ? "connecté ✅" : "non configuré ❌",
+    autoReply: "actif — vérification toutes les 5 minutes ✅",
   });
+});
+
+app.post("/process", async (req, res) => {
+  const result = await processAmazonMessages();
+  res.json(result);
 });
 
 app.post("/reply", async (req, res) => {
@@ -151,23 +219,14 @@ app.post("/reply", async (req, res) => {
     if (!message) return res.status(400).json({ error: "Message manquant" });
 
     let trackingInfo = null;
-
-    // Recherche PacklinkPro automatique
     if (orderId) {
       const shipments = await searchPacklinkByOrder(orderId);
       if (shipments && shipments.length > 0) {
-        const ref = shipments[0].reference;
-        trackingInfo = await getPacklinkTracking(ref);
-      }
-    } else if (customerName) {
-      const shipments = await searchPacklinkByName(customerName);
-      if (shipments && shipments.length > 0) {
-        const ref = shipments[0].reference;
-        trackingInfo = await getPacklinkTracking(ref);
+        trackingInfo = await getPacklinkTracking(shipments[0].reference);
       }
     }
 
-    const reply = await generateReply(message, trackingInfo);
+    const reply = await generateReply(message, trackingInfo, orderId ? { orderId } : null);
     res.json({ reply, trackingFound: !!trackingInfo });
   } catch (error) {
     console.error("Erreur:", error.message);
@@ -177,4 +236,6 @@ app.post("/reply", async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`🚀 SAV BarberCosmetic démarré sur le port ${PORT}`);
+  // Lance une première vérification au démarrage
+  setTimeout(processAmazonMessages, 10000);
 });
