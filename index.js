@@ -97,8 +97,9 @@ async function replyToAmazonMessage(accessToken, orderId, message) {
 // ─── PACKLINK ─────────────────────────────────────────────
 async function searchPacklinkByOrder(orderId) {
   try {
+    // Cherche par référence externe Amazon
     const response = await axios.get(
-      `https://api.packlink.com/v1/shipments?source=amazon&order_id=${orderId}`,
+      `https://api.packlink.com/v1/shipments?keywords=${encodeURIComponent(orderId)}&limit=5`,
       {
         headers: {
           "Authorization": PACKLINK_API_KEY,
@@ -108,7 +109,7 @@ async function searchPacklinkByOrder(orderId) {
     );
     return response.data;
   } catch (error) {
-    console.error("Erreur PacklinkPro:", error.message);
+    console.error("Erreur PacklinkPro:", error.response?.data || error.message);
     return null;
   }
 }
