@@ -57,17 +57,18 @@ async function getAmazonAccessToken() {
 async function getUnreadMessages(accessToken) {
   try {
     const response = await axios.get(
-      "https://sellingpartnerapi-eu.amazon.com/messaging/v1/orders?marketplaceIds=A13V1IB3VIYZZH",
+      "https://sellingpartnerapi-eu.amazon.com/messaging/v1/orders?marketplaceIds=A13V1IB3VIYZZH&pageSize=10",
       {
         headers: {
           "x-amz-access-token": accessToken,
           "Content-Type": "application/json",
+          "x-amz-date": new Date().toISOString(),
         },
       }
     );
     return response.data;
   } catch (error) {
-    console.error("Erreur lecture messages Amazon:", error.message);
+    console.error("Erreur lecture messages Amazon:", error.response?.data || error.message);
     return null;
   }
 }
