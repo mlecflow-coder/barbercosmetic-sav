@@ -79,10 +79,6 @@
       gap: 8px;
     }
 
-    .form-group.full {
-      grid-column: 1 / -1;
-    }
-
     label {
       font-size: 13px;
       font-weight: 500;
@@ -280,7 +276,7 @@
     <div class="tip">
       <div class="tip-icon">📦</div>
       <div class="tip-title">Suivi automatique</div>
-      L'agent consulte PacklinkPro pour obtenir le statut en temps réel
+      L'agent consulte TrackingMore pour obtenir le statut en temps réel
     </div>
     <div class="tip">
       <div class="tip-icon">⚡</div>
@@ -303,12 +299,12 @@
         <input type="text" id="orderId" placeholder="ex: 408-9480146-2649948" />
       </div>
       <div class="form-group">
-        <label>Nom du client (optionnel)</label>
-        <input type="text" id="customerName" placeholder="ex: Jean Dupont" />
+        <label>Numéro de suivi</label>
+        <input type="text" id="trackingNumber" placeholder="ex: 84801065 ou 1Z999AA1..." />
       </div>
     </div>
 
-    <div class="form-group full" style="margin-bottom: 20px;">
+    <div class="form-group" style="margin-bottom: 20px;">
       <label>Message du client</label>
       <textarea id="message" placeholder="Collez ici le message reçu sur Amazon Seller Central..."></textarea>
     </div>
@@ -340,7 +336,7 @@
   async function generateReply() {
     const message = document.getElementById('message').value.trim();
     const orderId = document.getElementById('orderId').value.trim();
-    const customerName = document.getElementById('customerName').value.trim();
+    const trackingNumber = document.getElementById('trackingNumber').value.trim();
 
     if (!message) {
       alert('Veuillez coller le message du client.');
@@ -350,13 +346,13 @@
     const btn = document.getElementById('submitBtn');
     btn.disabled = true;
     btn.classList.add('loading');
-    btn.innerHTML = '<div class="spinner"></div> Consultation PacklinkPro + génération...';
+    btn.innerHTML = '<div class="spinner"></div> Vérification du suivi + génération...';
 
     try {
       const response = await fetch(`${API_URL}/reply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, orderId, customerName }),
+        body: JSON.stringify({ message, orderId, trackingNumber }),
       });
 
       const data = await response.json();
@@ -365,7 +361,7 @@
 
       const badge = document.getElementById('trackingBadge');
       if (data.trackingFound) {
-        badge.textContent = '📦 Suivi PacklinkPro trouvé';
+        badge.textContent = '📦 Suivi trouvé ✅';
         badge.className = 'tracking-badge tracking-found';
       } else {
         badge.textContent = '⚠️ Suivi non trouvé';
@@ -399,7 +395,7 @@
   function resetForm() {
     document.getElementById('message').value = '';
     document.getElementById('orderId').value = '';
-    document.getElementById('customerName').value = '';
+    document.getElementById('trackingNumber').value = '';
     document.getElementById('resultCard').classList.remove('visible');
     document.getElementById('formCard').style.display = 'block';
   }
