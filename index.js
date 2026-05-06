@@ -95,39 +95,46 @@ async function replyToAmazonMessage(accessToken, orderId, message) {
 }
 
 // ─── PACKLINK ─────────────────────────────────────────────
-async function searchPacklinkByOrder(orderId) {
+async function getTrackingInfo(trackingNumber) {
   try {
-    // Cherche par référence externe Amazon
-    const response = await axios.get(
-      `https://api.packlink.com/v1/shipments?keywords=${encodeURIComponent(orderId)}&limit=5`,
+    // Étape 1 : créer le tracking dans TrackingMore
+    await axios.post(
+      "https://api.trackingmore.com/v4/trackings/create",
+      {
+        tracking_number: trackingNumber,
+      },
       {
         headers: {
-          "Authorization": PACKLINK_API_KEY,
+          "Tracking-Api-Key": process.env.TRACKINGMORE_API_KEY,
           "Content-Type": "application/json",
         },
       }
     );
-    return response.data;
-  } catch (error) {
-    console.error("Erreur PacklinkPro:", error.response?.data || error.message);
-    return null;
-  }
-}
 
-async function getPacklinkTracking(shipmentRef) {
-  try {
+    // Étape 2 : récupérer le statut
     const response = await axios.get(
-      `https://api.packlink.com/v1/shipments/${shipmentRef}/track`,
+      `https://api.trackingmore.com/v4/trackings?tracking_numbers=${trackingNumber}`,
       {
         headers: {
-          "Authorization": PACKLINK_API_KEY,
+          "Tracking-Api-Key": process.env.TRACKINGMORE_API_KEY,
           "Content-Type": "application/json",
         },
       }
     );
-    return response.data;
+
+    const data = response.data?.data?.items?.[0];
+    if (!data) return null;
+
+    return {
+      status: data.delivery_status,
+      carrier: data.courier_name,
+      lastEvent: data.latest_event_info,
+      lastUpdate: data.latest_checkpoint_time,
+      estimatedDelivery: data.estimated_delivery_date,
+      trackingNumber: trackingNumber,
+    };
   } catch (error) {
-    console.error("Erreur tracking PacklinkPro:", error.message);
+    console.error("Erreur TrackingMore:", error.response?.data || error.message);
     return null;
   }
 }
