@@ -226,15 +226,12 @@ app.post("/process", async (req, res) => {
 
 app.post("/reply", async (req, res) => {
   try {
-    const { message, orderId, customerName } = req.body;
+    const { message, trackingNumber, orderId } = req.body;
     if (!message) return res.status(400).json({ error: "Message manquant" });
 
     let trackingInfo = null;
-    if (orderId) {
-      const shipments = await searchPacklinkByOrder(orderId);
-      if (shipments && shipments.length > 0) {
-        trackingInfo = await getPacklinkTracking(shipments[0].reference);
-      }
+    if (trackingNumber) {
+      trackingInfo = await getTrackingInfo(trackingNumber);
     }
 
     const reply = await generateReply(message, trackingInfo, orderId ? { orderId } : null);
