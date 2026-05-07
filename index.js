@@ -45,7 +45,7 @@ async function generateReply(customerMessage, orderInfo = null) {
   const response = await axios.post(
     "https://api.anthropic.com/v1/messages",
     {
-      model: "claude-sonnet-4-20250514",
+      model: "claude-sonnet-4-5",
       max_tokens: 600,
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content: context }],
