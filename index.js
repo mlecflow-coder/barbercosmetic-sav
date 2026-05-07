@@ -13,7 +13,6 @@ const {
   PORT = 3000,
 } = process.env;
 
-// ─── BASE DE DONNÉES ──────────────────────────────────────
 const pool = new Pool({
   connectionString: DATABASE_URL,
   ssl: { rejectUnauthorized: false },
@@ -24,12 +23,13 @@ async function initDB() {
     CREATE TABLE IF NOT EXISTS orders (
       id SERIAL PRIMARY KEY,
       order_id VARCHAR(50) UNIQUE NOT NULL,
-      customer_name VARCHAR(255),
       carrier VARCHAR(50),
       tracking_number VARCHAR(100),
       postal_code VARCHAR(20),
       status VARCHAR(50) DEFAULT 'en_cours',
       notes TEXT,
+      refund_client DECIMAL(10,2),
+      refund_packlink DECIMAL(10,2),
       created_at TIMESTAMP DEFAULT NOW(),
       updated_at TIMESTAMP DEFAULT NOW()
     );
@@ -39,16 +39,19 @@ async function initDB() {
       order_id VARCHAR(50) NOT NULL,
       customer_message TEXT NOT NULL,
       agent_reply TEXT NOT NULL,
-      tracking_status VARCHAR(50),
+      tracking_status VARCHAR(100),
       created_at TIMESTAMP DEFAULT NOW()
     );
 
     CREATE TABLE IF NOT EXISTS disputes (
       id SERIAL PRIMARY KEY,
-      order_id VARCHAR(50) NOT NULL,
+      order_id VARCHAR(50) UNIQUE NOT NULL,
       status VARCHAR(50) DEFAULT 'en_attente_docs',
       has_letter BOOLEAN DEFAULT FALSE,
       has_id_doc BOOLEAN DEFAULT FALSE,
+      transmitted_packlink BOOLEAN DEFAULT FALSE,
+      transmitted_at TIMESTAMP,
+      resolution VARCHAR(50),
       notes TEXT,
       created_at TIMESTAMP DEFAULT NOW(),
       updated_at TIMESTAMP DEFAULT NOW()
@@ -57,14 +60,13 @@ async function initDB() {
   console.log("✅ Base de données initialisée");
 }
 
-// ─── SYSTEM PROMPT ────────────────────────────────────────
 const SYSTEM_PROMPT = `Tu es l'assistant SAV officiel de BarberCosmetic, boutique e-commerce sur Amazon.
 
 TRANSPORTEURS : Colis Privé, Mondial Relay, UPS, Chronopost, Colissimo (France et Europe)
 
 STATUTS :
 - "transit" → en route, normal sous 2-3 jours
-- "pending" → en attente, normal sous 24h
+- "pending" → en attente, normal sous 24h  
 - "undelivered" → tentative échouée, inviter à reprogrammer
 - "delivered" contesté → procédure litige
 - "exception" → problème, escalader à mlecflow@gmail.com
@@ -84,12 +86,11 @@ PRODUIT DÉFECTUEUX : photo demandée + échange ou remboursement au choix.
 
 RÈGLES : vouvoyer, ton chaleureux, réponses courtes (4-5 phrases max), contact : mlecflow@gmail.com`;
 
-// ─── CLAUDE ───────────────────────────────────────────────
 async function generateReply(customerMessage, orderInfo = null, history = []) {
   let context = "";
   if (orderInfo) context += `[COMMANDE AMAZON]\n${JSON.stringify(orderInfo, null, 2)}\n\n`;
   if (history.length > 0) {
-    context += `[HISTORIQUE DES ÉCHANGES PRÉCÉDENTS]\n`;
+    context += `[HISTORIQUE DES ÉCHANGES]\n`;
     history.forEach((h, i) => {
       context += `Échange ${i + 1} :\nClient : ${h.customer_message}\nRéponse : ${h.agent_reply}\n\n`;
     });
@@ -124,13 +125,11 @@ app.get("/health", (req, res) => {
   });
 });
 
-// Générer une réponse
 app.post("/reply", async (req, res) => {
   try {
     const { message, orderId, carrier, trackingNumber, postalCode, trackingStatus } = req.body;
     if (!message) return res.status(400).json({ error: "Message manquant" });
 
-    // Récupérer l'historique de la commande
     let history = [];
     if (orderId) {
       const histResult = await pool.query(
@@ -140,7 +139,6 @@ app.post("/reply", async (req, res) => {
       history = histResult.rows.reverse();
     }
 
-    // Enrichir le message avec le statut
     let enrichedMessage = message;
     if (trackingStatus) {
       enrichedMessage = `[STATUT CONSTATÉ : ${trackingStatus}]\n[NUMÉRO DE SUIVI : ${trackingNumber || 'N/A'}]\n\n${message}`;
@@ -149,7 +147,6 @@ app.post("/reply", async (req, res) => {
     const orderInfo = orderId ? { orderId, carrier, trackingNumber } : null;
     const reply = await generateReply(enrichedMessage, orderInfo, history);
 
-    // Sauvegarder la commande
     if (orderId) {
       await pool.query(`
         INSERT INTO orders (order_id, carrier, tracking_number, postal_code)
@@ -160,7 +157,6 @@ app.post("/reply", async (req, res) => {
           updated_at = NOW()
       `, [orderId, carrier, trackingNumber, postalCode]);
 
-      // Sauvegarder le message
       await pool.query(
         "INSERT INTO messages (order_id, customer_message, agent_reply, tracking_status) VALUES ($1, $2, $3, $4)",
         [orderId, message, reply, trackingStatus]
@@ -174,7 +170,33 @@ app.post("/reply", async (req, res) => {
   }
 });
 
-// Récupérer l'historique d'une commande
+app.get("/orders", async (req, res) => {
+  try {
+    const { status } = req.query;
+    let query = `
+      SELECT o.*, 
+        COUNT(m.id) as message_count,
+        d.status as dispute_status,
+        d.has_letter,
+        d.has_id_doc,
+        d.transmitted_packlink
+      FROM orders o 
+      LEFT JOIN messages m ON o.order_id = m.order_id 
+      LEFT JOIN disputes d ON o.order_id = d.order_id
+    `;
+    const params = [];
+    if (status && status !== 'all') {
+      query += ` WHERE o.status = $1`;
+      params.push(status);
+    }
+    query += ` GROUP BY o.id, d.status, d.has_letter, d.has_id_doc, d.transmitted_packlink ORDER BY o.updated_at DESC LIMIT 100`;
+    const result = await pool.query(query, params);
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get("/order/:orderId", async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -184,7 +206,7 @@ app.get("/order/:orderId", async (req, res) => {
       [orderId]
     );
     const dispute = await pool.query(
-      "SELECT * FROM disputes WHERE order_id = $1 ORDER BY created_at DESC LIMIT 1",
+      "SELECT * FROM disputes WHERE order_id = $1",
       [orderId]
     );
     res.json({
@@ -197,49 +219,65 @@ app.get("/order/:orderId", async (req, res) => {
   }
 });
 
-// Mettre à jour le statut d'une commande
-app.put("/order/:orderId/status", async (req, res) => {
+app.put("/order/:orderId", async (req, res) => {
   try {
     const { orderId } = req.params;
-    const { status, notes } = req.body;
-    await pool.query(
-      "UPDATE orders SET status = $1, notes = $2, updated_at = NOW() WHERE order_id = $3",
-      [status, notes, orderId]
-    );
+    const { status, notes, refundClient, refundPacklink } = req.body;
+    await pool.query(`
+      UPDATE orders SET 
+        status = COALESCE($1, status),
+        notes = COALESCE($2, notes),
+        refund_client = COALESCE($3, refund_client),
+        refund_packlink = COALESCE($4, refund_packlink),
+        updated_at = NOW()
+      WHERE order_id = $5
+    `, [status, notes, refundClient, refundPacklink, orderId]);
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// Créer ou mettre à jour un litige
 app.post("/dispute", async (req, res) => {
   try {
-    const { orderId, hasLetter, hasIdDoc, notes } = req.body;
+    const { orderId, hasLetter, hasIdDoc, transmittedPacklink, resolution, notes } = req.body;
     await pool.query(`
-      INSERT INTO disputes (order_id, has_letter, has_id_doc, notes)
-      VALUES ($1, $2, $3, $4)
-      ON CONFLICT DO NOTHING
-    `, [orderId, hasLetter, hasIdDoc, notes]);
+      INSERT INTO disputes (order_id, has_letter, has_id_doc, transmitted_packlink, transmitted_at, resolution, notes)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      ON CONFLICT (order_id) DO UPDATE SET
+        has_letter = EXCLUDED.has_letter,
+        has_id_doc = EXCLUDED.has_id_doc,
+        transmitted_packlink = EXCLUDED.transmitted_packlink,
+        transmitted_at = CASE WHEN EXCLUDED.transmitted_packlink = TRUE AND disputes.transmitted_at IS NULL THEN NOW() ELSE disputes.transmitted_at END,
+        resolution = EXCLUDED.resolution,
+        notes = EXCLUDED.notes,
+        updated_at = NOW()
+    `, [orderId, hasLetter, hasIdDoc, transmittedPacklink, transmittedPacklink ? new Date() : null, resolution, notes]);
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// Lister toutes les commandes
-app.get("/orders", async (req, res) => {
+app.get("/stats", async (req, res) => {
   try {
-    const result = await pool.query(
-      "SELECT o.*, COUNT(m.id) as message_count FROM orders o LEFT JOIN messages m ON o.order_id = m.order_id GROUP BY o.id ORDER BY o.updated_at DESC LIMIT 50"
-    );
-    res.json(result.rows);
+    const stats = await pool.query(`
+      SELECT
+        COUNT(*) as total_orders,
+        COUNT(CASE WHEN status = 'en_cours' THEN 1 END) as en_cours,
+        COUNT(CASE WHEN status = 'cloture_rembourse' THEN 1 END) as cloture_rembourse,
+        COUNT(CASE WHEN status = 'cloture_sans_remboursement' THEN 1 END) as cloture_sans_remboursement,
+        COUNT(CASE WHEN status = 'litige_ouvert' THEN 1 END) as litige_ouvert,
+        COALESCE(SUM(refund_client), 0) as total_rembourse_client,
+        COALESCE(SUM(refund_packlink), 0) as total_recupere_packlink
+      FROM orders
+    `);
+    res.json(stats.rows[0]);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// ─── DÉMARRAGE ────────────────────────────────────────────
 app.listen(PORT, async () => {
   console.log(`🚀 SAV BarberCosmetic démarré sur le port ${PORT}`);
   await initDB();
