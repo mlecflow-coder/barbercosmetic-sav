@@ -7,97 +7,86 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
 const {
-  AMAZON_CLIENT_ID,
-  AMAZON_CLIENT_SECRET,
-  AMAZON_REFRESH_TOKEN,
   ANTHROPIC_API_KEY,
   TRACKINGMORE_API_KEY,
   PORT = 3000,
 } = process.env;
 
 const SYSTEM_PROMPT = `Tu es l'assistant SAV officiel de BarberCosmetic, boutique e-commerce sur Amazon.
-Tu as accès aux informations de suivi en temps réel via TrackingMore.
+Tu as accès aux informations de suivi en temps réel.
 
 TRANSPORTEURS : Colis Privé, Mondial Relay, UPS, Chronopost, Colissimo (France et Europe)
 
-STATUTS EN TRANSIT :
+STATUTS :
 - "transit" → en route, normal sous 2-3 jours
-- "pending" → en attente de prise en charge, normal sous 24h
-- "undelivered" → tentative échouée, inviter à reprogrammer ou récupérer en point relais
-- "delivered" contesté → voir procédure litige
-- "exception" → problème détecté, escalader à mlecflow@gmail.com
-- Pas de mouvement +5 jours ouvrés → investigation à ouvrir
+- "pending" → en attente, normal sous 24h
+- "undelivered" → tentative échouée, inviter à reprogrammer
+- "delivered" contesté → procédure litige
+- "exception" → problème, escalader à mlecflow@gmail.com
+- Pas de mouvement +5 jours → investigation à ouvrir
 
 COLIS LIVRÉ MAIS NON REÇU :
 Étape 1 - Vérifications : boîte aux lettres, voisins, point relais, avis de passage
-Étape 2 - Demander d'envoyer à mlecflow@gmail.com :
+Étape 2 - Envoyer à mlecflow@gmail.com :
   - Objet : "Contestation livraison - N° de suivi XXXXX"
-  - Lettre sur l'honneur (modèle si demandé : "Je soussigné(e) [Prénom Nom], demeurant au [adresse], atteste sur l'honneur ne pas avoir reçu le colis n°[numéro] commandé le [date] sur Amazon. Fait à [ville], le [date]. Signature.")
+  - Lettre sur l'honneur
   - Pièce d'identité (CNI ou passeport)
-Ne jamais promettre un remboursement immédiat sur un colis marqué livré sans les documents.
+Ne jamais promettre un remboursement immédiat sans les documents.
 
-RETARD : excuses sincères + statut TrackingMore + investigation si +5 jours sans mouvement. Pas de code promo sur Amazon.
-RETOUR : accepté sous 30 jours, produit non utilisé. Via Amazon ou mlecflow@gmail.com. Remboursement sous 5-7 jours.
-PRODUIT DÉFECTUEUX : photo demandée + échange ou remboursement au choix client.
+RETARD : excuses sincères + statut + investigation si +5 jours sans mouvement.
+RETOUR : accepté sous 30 jours. Remboursement sous 5-7 jours après réception.
+PRODUIT DÉFECTUEUX : photo demandée + échange ou remboursement au choix.
 
-RÈGLES : vouvoyer par défaut, ton chaleureux et professionnel, réponses courtes (4-5 phrases max), toujours une action concrète, jamais promettre de remboursement immédiat sans vérification, contact : mlecflow@gmail.com`;
-
-// ─── AMAZON TOKEN ─────────────────────────────────────────
-async function getAmazonAccessToken() {
-  const response = await axios.post(
-    "https://api.amazon.com/auth/o2/token",
-    new URLSearchParams({
-      grant_type: "refresh_token",
-      refresh_token: AMAZON_REFRESH_TOKEN,
-      client_id: AMAZON_CLIENT_ID,
-      client_secret: AMAZON_CLIENT_SECRET,
-    }),
-    { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
-  );
-  return response.data.access_token;
-}
+RÈGLES : vouvoyer, ton chaleureux, réponses courtes (4-5 phrases max), contact : mlecflow@gmail.com`;
 
 // ─── TRACKINGMORE ─────────────────────────────────────────
 async function getTrackingInfo(trackingNumber, carrier, postalCode) {
+  const headers = {
+    "Tracking-Api-Key": TRACKINGMORE_API_KEY,
+    "Content-Type": "application/json",
+  };
+
+  // Étape 1 : créer le tracking
   try {
-    // Essai de création
-    const createResponse = await axios.post(
-      "https://api.trackingmore.com/v4/trackings/create",
+    const createRes = await axios.post(
+      "https://api.trackingmore.com/v4/trackings",
       {
         tracking_number: trackingNumber,
         courier_code: carrier,
-        tracking_postal_code: postalCode,
+        tracking_postal_code: postalCode || undefined,
       },
-      {
-        headers: {
-          "Tracking-Api-Key": TRACKINGMORE_API_KEY,
-          "Content-Type": "application/json",
-        },
-      }
+      { headers }
     );
-    const created = createResponse.data?.data;
-    if (created) return {
-      status: created.delivery_status,
-      carrier: created.courier_name,
-      lastEvent: created.latest_event_info,
-      lastUpdate: created.latest_checkpoint_time,
-      trackingNumber,
-    };
+    console.log("TrackingMore create response:", JSON.stringify(createRes.data));
+    const data = createRes.data?.data;
+    if (data && data.delivery_status) {
+      return {
+        status: data.delivery_status,
+        carrier: data.courier_name,
+        lastEvent: data.latest_event_info,
+        lastUpdate: data.latest_checkpoint_time,
+        trackingNumber,
+      };
+    }
   } catch (e) {
-    // Tracking existe déjà — on fait un GET
+    console.log("Create error (peut être déjà existant):", e.response?.data || e.message);
   }
 
+  // Étape 2 : récupérer via GET
   try {
-    const getResponse = await axios.get(
-      `https://api.trackingmore.com/v4/trackings?tracking_numbers=${trackingNumber}&courier_code=${carrier}`,
+    const getRes = await axios.get(
+      `https://api.trackingmore.com/v4/trackings`,
       {
-        headers: {
-          "Tracking-Api-Key": TRACKINGMORE_API_KEY,
-          "Content-Type": "application/json",
-        },
+        headers,
+        params: {
+          tracking_numbers: trackingNumber,
+          courier_code: carrier,
+        }
       }
     );
-    const data = getResponse.data?.data?.items?.[0];
+    console.log("TrackingMore get response:", JSON.stringify(getRes.data));
+    const items = getRes.data?.data?.items;
+    const data = items?.[0];
     if (!data) return null;
     return {
       status: data.delivery_status,
@@ -107,7 +96,7 @@ async function getTrackingInfo(trackingNumber, carrier, postalCode) {
       trackingNumber,
     };
   } catch (error) {
-    console.error("Erreur TrackingMore:", error.response?.data || error.message);
+    console.error("TrackingMore GET error:", error.response?.data || error.message);
     return null;
   }
 }
