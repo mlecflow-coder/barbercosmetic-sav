@@ -56,6 +56,12 @@ async function initDB() {
       created_at TIMESTAMP DEFAULT NOW(),
       updated_at TIMESTAMP DEFAULT NOW()
     );
+
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS refund_client DECIMAL(10,2);
+    ALTER TABLE orders ADD COLUMN IF NOT EXISTS refund_packlink DECIMAL(10,2);
+    ALTER TABLE disputes ADD COLUMN IF NOT EXISTS transmitted_packlink BOOLEAN DEFAULT FALSE;
+    ALTER TABLE disputes ADD COLUMN IF NOT EXISTS transmitted_at TIMESTAMP;
+    ALTER TABLE disputes ADD COLUMN IF NOT EXISTS resolution VARCHAR(50);
   `);
   console.log("✅ Base de données initialisée");
 }
