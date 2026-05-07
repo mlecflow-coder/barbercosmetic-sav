@@ -28,14 +28,13 @@
     .result-card.visible { display: block; }
     .result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
     .result-title { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.8px; }
-    .tracking-badge { font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; }
-    .tracking-found { background: #e8f5e9; color: #2e7d32; }
-    .tracking-not-found { background: #fff3e0; color: #e65100; }
-    .reply-box { background: #f8f8f5; border: 1.5px solid #e5e5e5; border-radius: 12px; padding: 20px; font-size: 14px; line-height: 1.8; color: #1a1a1a; white-space: pre-wrap; margin-bottom: 20px; }
-    .copy-btn { width: 100%; padding: 13px; background: #ff6b35; color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .reply-box { background: #f8f8f5; border: 1.5px solid #e5e5e5; border-radius: 12px; padding: 20px; font-size: 14px; line-height: 1.8; color: #1a1a1a; white-space: pre-wrap; margin-bottom: 16px; }
+    .tracking-link-btn { width: 100%; padding: 13px; background: #1a73e8; color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; text-decoration: none; }
+    .tracking-link-btn:hover { background: #1557b0; }
+    .copy-btn { width: 100%; padding: 13px; background: #ff6b35; color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; }
     .copy-btn:hover { background: #e85d20; }
     .copy-btn.copied { background: #2e7d32; }
-    .new-btn { width: 100%; padding: 13px; background: transparent; color: #888; border: 1.5px solid #e5e5e5; border-radius: 12px; font-size: 14px; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; margin-top: 10px; }
+    .new-btn { width: 100%; padding: 13px; background: transparent; color: #888; border: 1.5px solid #e5e5e5; border-radius: 12px; font-size: 14px; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; }
     .new-btn:hover { border-color: #1a1a1a; color: #1a1a1a; }
     .tips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
     .tip { background: #fff; border-radius: 12px; padding: 16px; font-size: 12.5px; color: #666; line-height: 1.5; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
@@ -58,8 +57,8 @@
   <div class="tips">
     <div class="tip">
       <div class="tip-icon">📦</div>
-      <div class="tip-title">Suivi automatique</div>
-      L'agent consulte TrackingMore pour obtenir le statut en temps réel
+      <div class="tip-title">Suivi en 1 clic</div>
+      Lien direct vers le transporteur avec numéro pré-rempli
     </div>
     <div class="tip">
       <div class="tip-icon">⚡</div>
@@ -78,21 +77,6 @@
 
     <div class="form-row">
       <div class="form-group">
-        <label>Numéro de commande Amazon</label>
-        <input type="text" id="orderId" placeholder="ex: 408-9480146-2649948" />
-      </div>
-      <div class="form-group">
-        <label>Numéro de suivi</label>
-        <input type="text" id="trackingNumber" placeholder="ex: 84801065 ou 1Z999AA1..." />
-      </div>
-    </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label>Code postal du destinataire</label>
-        <input type="text" id="postalCode" placeholder="ex: 28130" />
-      </div>
-      <div class="form-group">
         <label>Transporteur</label>
         <select id="carrier">
           <option value="">-- Sélectionner --</option>
@@ -100,8 +84,23 @@
           <option value="colissimo">Colissimo</option>
           <option value="ups">UPS</option>
           <option value="chronopost">Chronopost</option>
-          <option value="colis-prive">Colis Privé</option>
+          <option value="colisprive">Colis Privé</option>
         </select>
+      </div>
+      <div class="form-group">
+        <label>Numéro de commande Amazon</label>
+        <input type="text" id="orderId" placeholder="ex: 408-9480146-2649948" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Numéro de suivi</label>
+        <input type="text" id="trackingNumber" placeholder="ex: 84801065 ou 1Z999AA1..." />
+      </div>
+      <div class="form-group">
+        <label>Code postal du destinataire</label>
+        <input type="text" id="postalCode" placeholder="ex: 28130" />
       </div>
     </div>
 
@@ -118,9 +117,13 @@
   <div class="result-card" id="resultCard">
     <div class="result-header">
       <div class="result-title">Réponse générée</div>
-      <div class="tracking-badge" id="trackingBadge"></div>
     </div>
     <div class="reply-box" id="replyBox"></div>
+
+    <a id="trackingLinkBtn" class="tracking-link-btn" href="#" target="_blank">
+      🔍 Voir le suivi en temps réel
+    </a>
+
     <button class="copy-btn" id="copyBtn" onclick="copyReply()">
       📋 Copier la réponse
     </button>
@@ -133,6 +136,14 @@
 
 <script>
   const API_URL = window.location.origin;
+
+  const TRACKING_URLS = {
+    mondialrelay: (num, cp) => `https://www.mondialrelay.fr/suivi-de-colis/?numeroExpedition=${num}&codePostal=${cp}`,
+    colissimo: (num) => `https://www.laposte.fr/outils/suivre-un-colis?code=${num}`,
+    ups: (num) => `https://www.ups.com/track?tracknum=${num}&loc=fr_FR`,
+    chronopost: (num) => `https://www.chronopost.fr/tracking-no-cms/suivi-de-colis?listeNumerosLT=${num}`,
+    colisprive: (num) => `https://www.colisprive.fr/moncolis/pages/suivi.aspx?numColis=${num}`,
+  };
 
   async function generateReply() {
     const message = document.getElementById('message').value.trim();
@@ -148,7 +159,7 @@
 
     const btn = document.getElementById('submitBtn');
     btn.disabled = true;
-    btn.innerHTML = '<div class="spinner"></div> Vérification du suivi + génération...';
+    btn.innerHTML = '<div class="spinner"></div> Génération en cours...';
 
     try {
       const response = await fetch(`${API_URL}/reply`, {
@@ -160,13 +171,14 @@
       const data = await response.json();
       document.getElementById('replyBox').textContent = data.reply;
 
-      const badge = document.getElementById('trackingBadge');
-      if (data.trackingFound) {
-        badge.textContent = '📦 Suivi trouvé ✅';
-        badge.className = 'tracking-badge tracking-found';
+      // Lien de suivi direct
+      const trackingBtn = document.getElementById('trackingLinkBtn');
+      if (trackingNumber && carrier && TRACKING_URLS[carrier]) {
+        const url = TRACKING_URLS[carrier](trackingNumber, postalCode);
+        trackingBtn.href = url;
+        trackingBtn.style.display = 'flex';
       } else {
-        badge.textContent = '⚠️ Suivi non trouvé';
-        badge.className = 'tracking-badge tracking-not-found';
+        trackingBtn.style.display = 'none';
       }
 
       document.getElementById('formCard').style.display = 'none';
