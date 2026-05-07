@@ -81,15 +81,16 @@ async function getTrackingInfo(trackingNumber, carrier, postalCode) {
 
   try {
     // Étape 2 : récupérer le statut
-    const response = await axios.get(
-      `https://api.trackingmore.com/v4/trackings?tracking_numbers=${trackingNumber}&courier_code=${carrier}`,
-      {
-        headers: {
-          "Tracking-Api-Key": TRACKINGMORE_API_KEY,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    // Étape 2 : récupérer le statut
+const response = await axios.get(
+  `https://api.trackingmore.com/v4/trackings/${carrier}/${trackingNumber}`,
+  {
+    headers: {
+      "Tracking-Api-Key": TRACKINGMORE_API_KEY,
+      "Content-Type": "application/json",
+    },
+  }
+);
 
     const data = response.data?.data?.items?.[0];
     if (!data) return null;
