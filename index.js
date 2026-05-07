@@ -77,10 +77,13 @@ async function getTrackingInfo(trackingNumber, carrier, postalCode) {
     console.log("ID existant:", existingId);
     if (existingId) {
       try {
-        const getRes = await axios.get(
-          `https://api.trackingmore.com/v4/trackings/${existingId}`,
-          { headers }
-        );
+       const getRes = await axios.get(
+  `https://api.trackingmore.com/v4/trackings`,
+  { 
+    headers,
+    params: { id: existingId }
+  }
+);
         console.log("GET by ID:", JSON.stringify(getRes.data));
         const data = getRes.data?.data;
         if (data) {
