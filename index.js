@@ -46,18 +46,21 @@ async function getTrackingInfo(trackingNumber, carrier, postalCode) {
     "Content-Type": "application/json",
   };
 
-  // Étape 1 : créer le tracking
+  let formattedPostalCode = postalCode;
+  if (carrier === "mondialrelay" && postalCode && postalCode.length === 5) {
+    formattedPostalCode = postalCode + "0101";
+  }
+
   try {
     const createRes = await axios.post(
       "https://api.trackingmore.com/v4/trackings/create",
       {
         tracking_number: trackingNumber,
         courier_code: carrier,
-        tracking_postal_code: postalCode || undefined,
+        tracking_postal_code: formattedPostalCode,
       },
       { headers }
     );
-    console.log("TrackingMore create response:", JSON.stringify(createRes.data));
     const data = createRes.data?.data;
     if (data && data.delivery_status) {
       return {
@@ -69,36 +72,32 @@ async function getTrackingInfo(trackingNumber, carrier, postalCode) {
       };
     }
   } catch (e) {
-    console.log("Create error (peut être déjà existant):", e.response?.data || e.message);
-  }
-
-  // Étape 2 : récupérer via GET
-  try {
-    const getRes = await axios.get(
-      `https://api.trackingmore.com/v4/trackings`,
-      {
-        headers,
-        params: {
-          tracking_numbers: trackingNumber,
-          courier_code: carrier,
+    // Tracking existe déjà → récupérer l'ID depuis l'erreur
+    const existingId = e.response?.data?.data?.id;
+    console.log("ID existant:", existingId);
+    if (existingId) {
+      try {
+        const getRes = await axios.get(
+          `https://api.trackingmore.com/v4/trackings/${existingId}`,
+          { headers }
+        );
+        console.log("GET by ID:", JSON.stringify(getRes.data));
+        const data = getRes.data?.data;
+        if (data) {
+          return {
+            status: data.delivery_status,
+            carrier: data.courier_name,
+            lastEvent: data.latest_event_info,
+            lastUpdate: data.latest_checkpoint_time,
+            trackingNumber,
+          };
         }
+      } catch (err) {
+        console.error("GET by ID error:", err.response?.data || err.message);
       }
-    );
-    console.log("TrackingMore get response:", JSON.stringify(getRes.data));
-    const items = getRes.data?.data?.items;
-    const data = items?.[0];
-    if (!data) return null;
-    return {
-      status: data.delivery_status,
-      carrier: data.courier_name,
-      lastEvent: data.latest_event_info,
-      lastUpdate: data.latest_checkpoint_time,
-      trackingNumber,
-    };
-  } catch (error) {
-    console.error("TrackingMore GET error:", error.response?.data || error.message);
-    return null;
+    }
   }
+  return null;
 }
 
 // ─── CLAUDE ───────────────────────────────────────────────
