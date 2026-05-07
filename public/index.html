@@ -15,34 +15,36 @@
     .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
     .card { background: #fff; border-radius: 16px; padding: 32px; margin-bottom: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
     .card-title { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 20px; }
+    .step-badge { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: #ff6b35; color: #fff; border-radius: 50%; font-size: 12px; font-weight: 700; margin-right: 8px; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
     .form-group { display: flex; flex-direction: column; gap: 8px; }
     label { font-size: 13px; font-weight: 500; color: #444; }
     input, textarea, select { border: 1.5px solid #e5e5e5; border-radius: 10px; padding: 12px 16px; font-size: 14px; font-family: 'Inter', sans-serif; color: #1a1a1a; background: #fafafa; transition: border-color 0.2s; outline: none; width: 100%; }
     input:focus, textarea:focus, select:focus { border-color: #ff6b35; background: #fff; }
-    textarea { resize: vertical; min-height: 140px; line-height: 1.6; }
+    textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
+    .tracking-btn { width: 100%; padding: 13px; background: #1a73e8; color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; margin-top: 8px; }
+    .tracking-btn:hover { background: #1557b0; }
+    .tracking-btn.disabled { background: #ccc; cursor: not-allowed; pointer-events: none; }
+    .status-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 8px; }
+    .status-option { border: 2px solid #e5e5e5; border-radius: 10px; padding: 10px 8px; text-align: center; cursor: pointer; transition: all 0.2s; font-size: 12px; font-weight: 500; color: #666; background: #fafafa; }
+    .status-option:hover { border-color: #ff6b35; color: #ff6b35; }
+    .status-option.selected { border-color: #ff6b35; background: rgba(255,107,53,0.08); color: #ff6b35; font-weight: 600; }
+    .status-icon { font-size: 20px; display: block; margin-bottom: 4px; }
     .btn { width: 100%; padding: 15px; background: #1a1a1a; color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 8px; }
     .btn:hover { background: #333; }
     .btn:disabled { background: #ccc; cursor: not-allowed; }
     .result-card { background: #fff; border-radius: 16px; padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); display: none; }
     .result-card.visible { display: block; }
-    .result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-    .result-title { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.8px; }
     .reply-box { background: #f8f8f5; border: 1.5px solid #e5e5e5; border-radius: 12px; padding: 20px; font-size: 14px; line-height: 1.8; color: #1a1a1a; white-space: pre-wrap; margin-bottom: 16px; }
-    .tracking-link-btn { width: 100%; padding: 13px; background: #1a73e8; color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; text-decoration: none; }
-    .tracking-link-btn:hover { background: #1557b0; }
     .copy-btn { width: 100%; padding: 13px; background: #ff6b35; color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; }
     .copy-btn:hover { background: #e85d20; }
     .copy-btn.copied { background: #2e7d32; }
     .new-btn { width: 100%; padding: 13px; background: transparent; color: #888; border: 1.5px solid #e5e5e5; border-radius: 12px; font-size: 14px; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; }
     .new-btn:hover { border-color: #1a1a1a; color: #1a1a1a; }
-    .tips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
-    .tip { background: #fff; border-radius: 12px; padding: 16px; font-size: 12.5px; color: #666; line-height: 1.5; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-    .tip-icon { font-size: 20px; margin-bottom: 8px; }
-    .tip-title { font-weight: 600; color: #1a1a1a; margin-bottom: 4px; font-size: 13px; }
+    .divider { border: none; border-top: 1px solid #f0f0f0; margin: 20px 0; }
     .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } .tips { grid-template-columns: 1fr; } .container { margin: 20px auto; } .card { padding: 20px; } }
+    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } .status-grid { grid-template-columns: repeat(3, 1fr); } .container { margin: 20px auto; } .card { padding: 20px; } }
   </style>
 </head>
 <body>
@@ -53,59 +55,80 @@
 </header>
 
 <div class="container">
-
-  <div class="tips">
-    <div class="tip">
-      <div class="tip-icon">📦</div>
-      <div class="tip-title">Suivi en 1 clic</div>
-      Lien direct vers le transporteur avec numéro pré-rempli
-    </div>
-    <div class="tip">
-      <div class="tip-icon">⚡</div>
-      <div class="tip-title">Réponse en 2 secondes</div>
-      Copie-colle directement dans Amazon Seller Central
-    </div>
-    <div class="tip">
-      <div class="tip-icon">🔒</div>
-      <div class="tip-title">Process litige</div>
-      Lettre sur l'honneur + CNI → mlecflow@gmail.com
-    </div>
-  </div>
-
   <div class="card" id="formCard">
     <div class="card-title">Nouveau message client</div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label>Transporteur</label>
-        <select id="carrier">
-          <option value="">-- Sélectionner --</option>
-          <option value="mondialrelay">Mondial Relay</option>
-          <option value="colissimo">Colissimo</option>
-          <option value="ups">UPS</option>
-          <option value="chronopost">Chronopost</option>
-          <option value="colisprive">Colis Privé</option>
-        </select>
+    <!-- ÉTAPE 1 : Infos expédition -->
+    <div style="margin-bottom: 20px;">
+      <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #1a1a1a;">
+        <span class="step-badge">1</span> Informations d'expédition
       </div>
-      <div class="form-group">
-        <label>Numéro de commande Amazon</label>
-        <input type="text" id="orderId" placeholder="ex: 408-9480146-2649948" />
+      <div class="form-row">
+        <div class="form-group">
+          <label>Transporteur</label>
+          <select id="carrier" onchange="updateTrackingBtn()">
+            <option value="">-- Sélectionner --</option>
+            <option value="mondialrelay">Mondial Relay</option>
+            <option value="colissimo">Colissimo</option>
+            <option value="ups">UPS</option>
+            <option value="chronopost">Chronopost</option>
+            <option value="colisprive">Colis Privé</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Numéro de commande Amazon</label>
+          <input type="text" id="orderId" placeholder="ex: 408-9480146-2649948" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Numéro de suivi</label>
+          <input type="text" id="trackingNumber" placeholder="ex: 84801065" oninput="updateTrackingBtn()" />
+        </div>
+        <div class="form-group">
+          <label>Code postal du destinataire</label>
+          <input type="text" id="postalCode" placeholder="ex: 28130" oninput="updateTrackingBtn()" />
+        </div>
+      </div>
+
+      <a id="trackingLinkBtn" class="tracking-btn disabled" href="#" target="_blank" onclick="return checkTrackingBtn()">
+        🔍 Voir le suivi en temps réel
+      </a>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- ÉTAPE 2 : Statut constaté -->
+    <div style="margin-bottom: 20px;">
+      <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #1a1a1a;">
+        <span class="step-badge">2</span> Statut constaté sur le site transporteur
+      </div>
+      <div class="status-grid">
+        <div class="status-option" onclick="selectStatus('transit')">
+          <span class="status-icon">🚚</span>En transit
+        </div>
+        <div class="status-option" onclick="selectStatus('pending')">
+          <span class="status-icon">⏳</span>En attente
+        </div>
+        <div class="status-option" onclick="selectStatus('delivered')">
+          <span class="status-icon">✅</span>Livré
+        </div>
+        <div class="status-option" onclick="selectStatus('undelivered')">
+          <span class="status-icon">🔔</span>Avis passage
+        </div>
+        <div class="status-option" onclick="selectStatus('exception')">
+          <span class="status-icon">⚠️</span>Anomalie
+        </div>
       </div>
     </div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label>Numéro de suivi</label>
-        <input type="text" id="trackingNumber" placeholder="ex: 84801065 ou 1Z999AA1..." />
-      </div>
-      <div class="form-group">
-        <label>Code postal du destinataire</label>
-        <input type="text" id="postalCode" placeholder="ex: 28130" />
-      </div>
-    </div>
+    <hr class="divider" />
 
-    <div class="form-group" style="margin-bottom: 20px;">
-      <label>Message du client</label>
+    <!-- ÉTAPE 3 : Message client -->
+    <div style="margin-bottom: 20px;">
+      <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #1a1a1a;">
+        <span class="step-badge">3</span> Message du client
+      </div>
       <textarea id="message" placeholder="Collez ici le message reçu sur Amazon Seller Central..."></textarea>
     </div>
 
@@ -114,16 +137,12 @@
     </button>
   </div>
 
+  <!-- RÉSULTAT -->
   <div class="result-card" id="resultCard">
-    <div class="result-header">
-      <div class="result-title">Réponse générée</div>
+    <div style="font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 20px;">
+      Réponse générée
     </div>
     <div class="reply-box" id="replyBox"></div>
-
-    <a id="trackingLinkBtn" class="tracking-link-btn" href="#" target="_blank">
-      🔍 Voir le suivi en temps réel
-    </a>
-
     <button class="copy-btn" id="copyBtn" onclick="copyReply()">
       📋 Copier la réponse
     </button>
@@ -131,11 +150,11 @@
       ↩ Nouveau message
     </button>
   </div>
-
 </div>
 
 <script>
   const API_URL = window.location.origin;
+  let selectedStatus = '';
 
   const TRACKING_URLS = {
     mondialrelay: (num, cp) => `https://www.mondialrelay.fr/suivi-de-colis/?numeroExpedition=${num}&codePostal=${cp}`,
@@ -145,12 +164,47 @@
     colisprive: (num) => `https://www.colisprive.fr/moncolis/pages/suivi.aspx?numColis=${num}`,
   };
 
+  const STATUS_LABELS = {
+    transit: "En transit — colis en route",
+    pending: "En attente de prise en charge",
+    delivered: "Livré — client conteste la réception",
+    undelivered: "Tentative de livraison échouée / avis de passage",
+    exception: "Anomalie / incident détecté",
+  };
+
+  function updateTrackingBtn() {
+    const carrier = document.getElementById('carrier').value;
+    const trackingNumber = document.getElementById('trackingNumber').value.trim();
+    const postalCode = document.getElementById('postalCode').value.trim();
+    const btn = document.getElementById('trackingLinkBtn');
+
+    if (carrier && trackingNumber) {
+      const url = TRACKING_URLS[carrier](trackingNumber, postalCode);
+      btn.href = url;
+      btn.classList.remove('disabled');
+    } else {
+      btn.href = '#';
+      btn.classList.add('disabled');
+    }
+  }
+
+  function checkTrackingBtn() {
+    const btn = document.getElementById('trackingLinkBtn');
+    if (btn.classList.contains('disabled')) return false;
+    return true;
+  }
+
+  function selectStatus(status) {
+    selectedStatus = status;
+    document.querySelectorAll('.status-option').forEach(el => el.classList.remove('selected'));
+    event.currentTarget.classList.add('selected');
+  }
+
   async function generateReply() {
     const message = document.getElementById('message').value.trim();
     const orderId = document.getElementById('orderId').value.trim();
     const trackingNumber = document.getElementById('trackingNumber').value.trim();
-    const postalCode = document.getElementById('postalCode').value.trim();
-    const carrier = document.getElementById('carrier').value.trim();
+    const carrier = document.getElementById('carrier').value;
 
     if (!message) {
       alert('Veuillez coller le message du client.');
@@ -161,26 +215,27 @@
     btn.disabled = true;
     btn.innerHTML = '<div class="spinner"></div> Génération en cours...';
 
+    // Enrichir le message avec le statut constaté
+    let enrichedMessage = message;
+    if (selectedStatus && STATUS_LABELS[selectedStatus]) {
+      enrichedMessage = `[STATUT CONSTATÉ SUR LE SITE TRANSPORTEUR : ${STATUS_LABELS[selectedStatus]}]\n\n${message}`;
+    }
+    if (trackingNumber) {
+      enrichedMessage = `[NUMÉRO DE SUIVI : ${trackingNumber}]\n` + enrichedMessage;
+    }
+
     try {
       const response = await fetch(`${API_URL}/reply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, orderId, trackingNumber, postalCode, carrier }),
+        body: JSON.stringify({ 
+          message: enrichedMessage, 
+          orderId: orderId || null,
+        }),
       });
 
       const data = await response.json();
       document.getElementById('replyBox').textContent = data.reply;
-
-      // Lien de suivi direct
-      const trackingBtn = document.getElementById('trackingLinkBtn');
-      if (trackingNumber && carrier && TRACKING_URLS[carrier]) {
-        const url = TRACKING_URLS[carrier](trackingNumber, postalCode);
-        trackingBtn.href = url;
-        trackingBtn.style.display = 'flex';
-      } else {
-        trackingBtn.style.display = 'none';
-      }
-
       document.getElementById('formCard').style.display = 'none';
       document.getElementById('resultCard').classList.add('visible');
 
@@ -210,6 +265,10 @@
     document.getElementById('trackingNumber').value = '';
     document.getElementById('postalCode').value = '';
     document.getElementById('carrier').value = '';
+    selectedStatus = '';
+    document.querySelectorAll('.status-option').forEach(el => el.classList.remove('selected'));
+    document.getElementById('trackingLinkBtn').href = '#';
+    document.getElementById('trackingLinkBtn').classList.add('disabled');
     document.getElementById('resultCard').classList.remove('visible');
     document.getElementById('formCard').style.display = 'block';
   }
