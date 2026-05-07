@@ -49,7 +49,7 @@ async function getTrackingInfo(trackingNumber, carrier, postalCode) {
   // Étape 1 : créer le tracking
   try {
     const createRes = await axios.post(
-      "https://api.trackingmore.com/v4/trackings",
+      "https://api.trackingmore.com/v4/trackings/create",
       {
         tracking_number: trackingNumber,
         courier_code: carrier,
