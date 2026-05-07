@@ -60,8 +60,9 @@ async function getAmazonAccessToken() {
 // ─── TRACKINGMORE ─────────────────────────────────────────
 async function getTrackingInfo(trackingNumber, carrier, postalCode) {
   try {
-    const response = await axios.post(
-      "https://api.trackingmore.com/v4/trackings",
+    // Essai de création
+    const createResponse = await axios.post(
+      "https://api.trackingmore.com/v4/trackings/create",
       {
         tracking_number: trackingNumber,
         courier_code: carrier,
@@ -74,17 +75,36 @@ async function getTrackingInfo(trackingNumber, carrier, postalCode) {
         },
       }
     );
+    const created = createResponse.data?.data;
+    if (created) return {
+      status: created.delivery_status,
+      carrier: created.courier_name,
+      lastEvent: created.latest_event_info,
+      lastUpdate: created.latest_checkpoint_time,
+      trackingNumber,
+    };
+  } catch (e) {
+    // Tracking existe déjà — on fait un GET
+  }
 
-    const data = response.data?.data;
+  try {
+    const getResponse = await axios.get(
+      `https://api.trackingmore.com/v4/trackings?tracking_numbers=${trackingNumber}&courier_code=${carrier}`,
+      {
+        headers: {
+          "Tracking-Api-Key": TRACKINGMORE_API_KEY,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    const data = getResponse.data?.data?.items?.[0];
     if (!data) return null;
-
     return {
       status: data.delivery_status,
       carrier: data.courier_name,
       lastEvent: data.latest_event_info,
       lastUpdate: data.latest_checkpoint_time,
-      estimatedDelivery: data.estimated_delivery_date,
-      trackingNumber: trackingNumber,
+      trackingNumber,
     };
   } catch (error) {
     console.error("Erreur TrackingMore:", error.response?.data || error.message);
