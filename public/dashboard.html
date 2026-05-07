@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BarberCosmetic — Dashboard SAV</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f5f5f0; min-height: 100vh; color: #1a1a1a; }
+    header { background: #1a1a1a; padding: 18px 32px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -0.5px; }
+    .logo span { color: #ff6b35; }
+    .nav-btn { background: rgba(255,107,53,0.15); border: 1px solid rgba(255,107,53,0.3); color: #ff6b35; font-size: 13px; font-weight: 600; padding: 8px 16px; border-radius: 20px; cursor: pointer; text-decoration: none; }
+    .nav-btn:hover { background: rgba(255,107,53,0.25); }
+    .container { max-width: 1200px; margin: 32px auto; padding: 0 20px; }
+
+    /* STATS */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: #fff; border-radius: 14px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .stat-value { font-size: 28px; font-weight: 700; color: #1a1a1a; }
+    .stat-label { font-size: 12px; color: #888; margin-top: 4px; font-weight: 500; }
+    .stat-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+
+    /* FILTRES */
+    .filters { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+    .filter-btn { padding: 8px 16px; border-radius: 20px; border: 1.5px solid #e5e5e5; background: #fff; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; color: #666; }
+    .filter-btn:hover { border-color: #ff6b35; color: #ff6b35; }
+    .filter-btn.active { background: #ff6b35; border-color: #ff6b35; color: #fff; }
+    .search-input { flex: 1; min-width: 200px; padding: 8px 16px; border: 1.5px solid #e5e5e5; border-radius: 20px; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; }
+    .search-input:focus { border-color: #ff6b35; }
+
+    /* TABLEAU */
+    .table-card { background: #fff; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f8f8f5; padding: 12px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #f0f0f0; }
+    td { padding: 14px 16px; font-size: 13.5px; border-bottom: 1px solid #f8f8f5; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafaf8; cursor: pointer; }
+
+    /* BADGES STATUT */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 600; }
+    .badge-en_cours { background: #fff3e0; color: #e65100; }
+    .badge-litige_ouvert { background: #fce4ec; color: #c62828; }
+    .badge-litige_packlink { background: #e3f2fd; color: #1565c0; }
+    .badge-cloture_rembourse { background: #e8f5e9; color: #2e7d32; }
+    .badge-cloture_sans_remboursement { background: #f5f5f5; color: #616161; }
+
+    /* MODAL */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.visible { display: flex; }
+    .modal { background: #fff; border-radius: 20px; width: 100%; max-width: 700px; max-height: 90vh; overflow-y: auto; padding: 32px; }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .modal-title { font-size: 18px; font-weight: 700; }
+    .close-btn { background: #f5f5f5; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+    .section-title { font-size: 12px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; margin-top: 20px; }
+    
+    /* MESSAGES HISTORIQUE */
+    .message-item { border: 1px solid #f0f0f0; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+    .message-date { font-size: 11px; color: #aaa; margin-bottom: 8px; }
+    .message-customer { background: #f8f8f5; border-radius: 8px; padding: 10px; font-size: 13px; color: #444; margin-bottom: 6px; }
+    .message-reply { background: #fff3ec; border-radius: 8px; padding: 10px; font-size: 13px; color: #444; }
+    .message-label { font-size: 10px; font-weight: 600; color: #aaa; text-transform: uppercase; margin-bottom: 4px; }
+
+    /* FORMULAIRE MODAL */
+    .modal-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+    .modal-form-group { display: flex; flex-direction: column; gap: 6px; }
+    .modal-form-group.full { grid-column: 1 / -1; }
+    .modal-form-group label { font-size: 12px; font-weight: 500; color: #444; }
+    .modal-form-group input, .modal-form-group select, .modal-form-group textarea { border: 1.5px solid #e5e5e5; border-radius: 8px; padding: 10px 12px; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; }
+    .modal-form-group input:focus, .modal-form-group select:focus, .modal-form-group textarea:focus { border-color: #ff6b35; }
+    .modal-form-group textarea { min-height: 80px; resize: vertical; }
+    
+    /* CHECKBOXES DOCS */
+    .doc-checks { display: flex; gap: 12px; margin-top: 8px; }
+    .doc-check { display: flex; align-items: center; gap: 8px; background: #f8f8f5; border: 1.5px solid #e5e5e5; border-radius: 10px; padding: 10px 14px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; }
+    .doc-check.checked { background: #e8f5e9; border-color: #2e7d32; color: #2e7d32; }
+    .doc-check input { display: none; }
+
+    /* BOUTONS MODAL */
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .save-btn { flex: 1; padding: 12px; background: #1a1a1a; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; }
+    .save-btn:hover { background: #333; }
+    .dispute-btn { flex: 1; padding: 12px; background: #c62828; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; }
+    .dispute-btn:hover { background: #b71c1c; }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: #aaa; }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .modal-form { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Barber<span>Cosmetic</span> — Dashboard</div>
+  <a href="/" class="nav-btn">✨ Nouveau message</a>
+</header>
+
+<div class="container">
+
+  <!-- STATS -->
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card">
+      <div class="stat-value" id="statTotal">—</div>
+      <div class="stat-label">Total commandes SAV</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statEnCours" style="color:#e65100">—</div>
+      <div class="stat-label">En cours</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statRembourse" style="color:#2e7d32">—</div>
+      <div class="stat-label">Remboursé client</div>
+      <div class="stat-sub" id="statPacklink">PacklinkPro : —</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statLitige" style="color:#c62828">—</div>
+      <div class="stat-label">Litiges ouverts</div>
+    </div>
+  </div>
+
+  <!-- FILTRES -->
+  <div class="filters">
+    <button class="filter-btn active" onclick="setFilter('all', this)">Tous</button>
+    <button class="filter-btn" onclick="setFilter('en_cours', this)">🟡 En cours</button>
+    <button class="filter-btn" onclick="setFilter('litige_ouvert', this)">🔴 Litige ouvert</button>
+    <button class="filter-btn" onclick="setFilter('litige_packlink', this)">🔵 Transmis PacklinkPro</button>
+    <button class="filter-btn" onclick="setFilter('cloture_rembourse', this)">🟢 Remboursé</button>
+    <button class="filter-btn" onclick="setFilter('cloture_sans_remboursement', this)">⚫ Clôturé</button>
+    <input type="text" class="search-input" placeholder="🔍 Rechercher par n° commande..." id="searchInput" oninput="filterTable()" />
+  </div>
+
+  <!-- TABLEAU -->
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>N° Commande</th>
+          <th>Transporteur</th>
+          <th>N° Suivi</th>
+          <th>Statut</th>
+          <th>Messages</th>
+          <th>Date</th>
+          <th>Remb. client</th>
+          <th>Remb. Packlink</th>
+        </tr>
+      </thead>
+      <tbody id="ordersTable">
+        <tr><td colspan="8" class="empty-state"><div class="empty-icon">📭</div>Chargement...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODAL DÉTAIL COMMANDE -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Commande</div>
+      <button class="close-btn" onclick="closeModalDirect()">✕</button>
+    </div>
+
+    <!-- STATUT -->
+    <div class="section-title">Statut de la commande</div>
+    <div class="modal-form">
+      <div class="modal-form-group">
+        <label>Statut</label>
+        <select id="modalStatus">
+          <option value="en_cours">🟡 En cours</option>
+          <option value="litige_ouvert">🔴 Litige ouvert</option>
+          <option value="litige_packlink">🔵 Transmis PacklinkPro</option>
+          <option value="cloture_rembourse">🟢 Clôturé — remboursé</option>
+          <option value="cloture_sans_remboursement">⚫ Clôturé — sans remboursement</option>
+        </select>
+      </div>
+      <div class="modal-form-group">
+        <label>Notes internes</label>
+        <input type="text" id="modalNotes" placeholder="ex: litige ouvert le 07/05" />
+      </div>
+      <div class="modal-form-group">
+        <label>💰 Montant remboursé au client (€)</label>
+        <input type="number" id="modalRefundClient" placeholder="0.00" step="0.01" />
+      </div>
+      <div class="modal-form-group">
+        <label>📦 Montant récupéré PacklinkPro (€)</label>
+        <input type="number" id="modalRefundPacklink" placeholder="0.00" step="0.01" />
+      </div>
+    </div>
+
+    <!-- LITIGE -->
+    <div class="section-title">Gestion du litige</div>
+    <div class="doc-checks">
+      <label class="doc-check" id="checkLetter" onclick="toggleCheck('checkLetter', 'hasLetter')">
+        <input type="checkbox" id="hasLetter" />
+        📄 Lettre sur l'honneur reçue
+      </label>
+      <label class="doc-check" id="checkId" onclick="toggleCheck('checkId', 'hasId')">
+        <input type="checkbox" id="hasId" />
+        🪪 Pièce d'identité reçue
+      </label>
+      <label class="doc-check" id="checkPacklink" onclick="toggleCheck('checkPacklink', 'hasPacklink')">
+        <input type="checkbox" id="hasPacklink" />
+        📮 Transmis à PacklinkPro
+      </label>
+    </div>
+    <div class="modal-form-group full" style="margin-top: 12px;">
+      <label>Notes litige</label>
+      <textarea id="modalDisputeNotes" placeholder="ex: documents reçus le 07/05, en attente réponse PacklinkPro..."></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="save-btn" onclick="saveOrder()">💾 Sauvegarder</button>
+    </div>
+
+    <!-- HISTORIQUE MESSAGES -->
+    <div class="section-title" style="margin-top: 28px;">Historique des échanges</div>
+    <div id="modalMessages"></div>
+  </div>
+</div>
+
+<script>
+  const API_URL = window.location.origin;
+  let allOrders = [];
+  let currentFilter = 'all';
+  let currentOrderId = null;
+
+  const STATUS_LABELS = {
+    en_cours: '🟡 En cours',
+    litige_ouvert: '🔴 Litige ouvert',
+    litige_packlink: '🔵 Transmis PacklinkPro',
+    cloture_rembourse: '🟢 Remboursé',
+    cloture_sans_remboursement: '⚫ Clôturé',
+  };
+
+  const CARRIER_LABELS = {
+    mondialrelay: 'Mondial Relay',
+    colissimo: 'Colissimo',
+    ups: 'UPS',
+    chronopost: 'Chronopost',
+    colisprive: 'Colis Privé',
+  };
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '—';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function formatEuro(val) {
+    if (!val || val == 0) return '—';
+    return parseFloat(val).toFixed(2) + ' €';
+  }
+
+  async function loadStats() {
+    const res = await fetch(`${API_URL}/stats`);
+    const s = await res.json();
+    document.getElementById('statTotal').textContent = s.total_orders;
+    document.getElementById('statEnCours').textContent = s.en_cours;
+    document.getElementById('statRembourse').textContent = parseFloat(s.total_rembourse_client || 0).toFixed(2) + ' €';
+    document.getElementById('statPacklink').textContent = 'PacklinkPro : ' + parseFloat(s.total_recupere_packlink || 0).toFixed(2) + ' €';
+    document.getElementById('statLitige').textContent = s.litige_ouvert;
+  }
+
+  async function loadOrders() {
+    const res = await fetch(`${API_URL}/orders`);
+    allOrders = await res.json();
+    renderTable();
+  }
+
+  function setFilter(filter, btn) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderTable();
+  }
+
+  function filterTable() {
+    renderTable();
+  }
+
+  function renderTable() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    let filtered = allOrders.filter(o => {
+      const matchFilter = currentFilter === 'all' || o.status === currentFilter;
+      const matchSearch = !search || o.order_id.toLowerCase().includes(search);
+      return matchFilter && matchSearch;
+    });
+
+    const tbody = document.getElementById('ordersTable');
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">📭</div>Aucune commande trouvée</div></td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(o => `
+      <tr onclick="openOrder('${o.order_id}')">
+        <td><strong>${o.order_id}</strong></td>
+        <td>${CARRIER_LABELS[o.carrier] || o.carrier || '—'}</td>
+        <td>${o.tracking_number || '—'}</td>
+        <td><span class="badge badge-${o.status}">${STATUS_LABELS[o.status] || o.status}</span></td>
+        <td>${o.message_count || 0} message(s)</td>
+        <td>${formatDate(o.created_at)}</td>
+        <td>${formatEuro(o.refund_client)}</td>
+        <td>${formatEuro(o.refund_packlink)}</td>
+      </tr>
+    `).join('');
+  }
+
+  async function openOrder(orderId) {
+    currentOrderId = orderId;
+    const res = await fetch(`${API_URL}/order/${orderId}`);
+    const data = await res.json();
+
+    document.getElementById('modalTitle').textContent = `Commande ${orderId}`;
+    document.getElementById('modalStatus').value = data.order?.status || 'en_cours';
+    document.getElementById('modalNotes').value = data.order?.notes || '';
+    document.getElementById('modalRefundClient').value = data.order?.refund_client || '';
+    document.getElementById('modalRefundPacklink').value = data.order?.refund_packlink || '';
+
+    // Litige
+    const d = data.dispute;
+    setCheckState('checkLetter', 'hasLetter', d?.has_letter);
+    setCheckState('checkId', 'hasId', d?.has_id_doc);
+    setCheckState('checkPacklink', 'hasPacklink', d?.transmitted_packlink);
+    document.getElementById('modalDisputeNotes').value = d?.notes || '';
+
+    // Messages
+    const msgs = data.messages || [];
+    document.getElementById('modalMessages').innerHTML = msgs.length === 0
+      ? '<div style="color:#aaa;font-size:13px;">Aucun message enregistré</div>'
+      : msgs.map(m => `
+        <div class="message-item">
+          <div class="message-date">${formatDate(m.created_at)} ${m.tracking_status ? '· Statut : ' + m.tracking_status : ''}</div>
+          <div class="message-label">Client</div>
+          <div class="message-customer">${m.customer_message}</div>
+          <div class="message-label" style="margin-top:8px;">Réponse SAV</div>
+          <div class="message-reply">${m.agent_reply}</div>
+        </div>
+      `).join('');
+
+    document.getElementById('modalOverlay').classList.add('visible');
+  }
+
+  function setCheckState(containerId, inputId, checked) {
+    const container = document.getElementById(containerId);
+    const input = document.getElementById(inputId);
+    if (checked) {
+      container.classList.add('checked');
+      input.checked = true;
+    } else {
+      container.classList.remove('checked');
+      input.checked = false;
+    }
+  }
+
+  function toggleCheck(containerId, inputId) {
+    const container = document.getElementById(containerId);
+    const input = document.getElementById(inputId);
+    input.checked = !input.checked;
+    container.classList.toggle('checked', input.checked);
+  }
+
+  async function saveOrder() {
+    if (!currentOrderId) return;
+
+    await fetch(`${API_URL}/order/${currentOrderId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        status: document.getElementById('modalStatus').value,
+        notes: document.getElementById('modalNotes').value,
+        refundClient: document.getElementById('modalRefundClient').value || null,
+        refundPacklink: document.getElementById('modalRefundPacklink').value || null,
+      }),
+    });
+
+    await fetch(`${API_URL}/dispute`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        orderId: currentOrderId,
+        hasLetter: document.getElementById('hasLetter').checked,
+        hasIdDoc: document.getElementById('hasId').checked,
+        transmittedPacklink: document.getElementById('hasPacklink').checked,
+        notes: document.getElementById('modalDisputeNotes').value,
+      }),
+    });
+
+    closeModalDirect();
+    await loadOrders();
+    await loadStats();
+    alert('✅ Sauvegardé !');
+  }
+
+  function closeModal(event) {
+    if (event.target === document.getElementById('modalOverlay')) closeModalDirect();
+  }
+
+  function closeModalDirect() {
+    document.getElementById('modalOverlay').classList.remove('visible');
+    currentOrderId = null;
+  }
+
+  // Init
+  loadStats();
+  loadOrders();
+</script>
+
+</body>
+</html>
