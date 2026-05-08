@@ -62,6 +62,7 @@ async function initDB() {
     ALTER TABLE disputes ADD COLUMN IF NOT EXISTS transmitted_packlink BOOLEAN DEFAULT FALSE;
     ALTER TABLE disputes ADD COLUMN IF NOT EXISTS transmitted_at TIMESTAMP;
     ALTER TABLE disputes ADD COLUMN IF NOT EXISTS resolution VARCHAR(50);
+    ALTER TABLE messages ALTER COLUMN tracking_status TYPE VARCHAR(255);
   `);
   console.log("✅ Base de données initialisée");
 }
