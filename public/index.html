@@ -11,7 +11,9 @@
     header { background: #1a1a1a; padding: 18px 32px; display: flex; align-items: center; justify-content: space-between; }
     .logo { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -0.5px; }
     .logo span { color: #ff6b35; }
-    .badge { background: rgba(255,107,53,0.15); border: 1px solid rgba(255,107,53,0.3); color: #ff6b35; font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 20px; letter-spacing: 0.5px; }
+    .nav-links { display: flex; gap: 12px; }
+    .nav-btn { background: rgba(255,107,53,0.15); border: 1px solid rgba(255,107,53,0.3); color: #ff6b35; font-size: 13px; font-weight: 600; padding: 8px 16px; border-radius: 20px; cursor: pointer; text-decoration: none; }
+    .nav-btn:hover { background: rgba(255,107,53,0.25); }
     .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
     .card { background: #fff; border-radius: 16px; padding: 32px; margin-bottom: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
     .card-title { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 20px; }
@@ -25,11 +27,24 @@
     .tracking-btn { width: 100%; padding: 13px; background: #1a73e8; color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; margin-top: 8px; }
     .tracking-btn:hover { background: #1557b0; }
     .tracking-btn.disabled { background: #ccc; cursor: not-allowed; pointer-events: none; }
-    .status-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 8px; }
-    .status-option { border: 2px solid #e5e5e5; border-radius: 10px; padding: 10px 8px; text-align: center; cursor: pointer; transition: all 0.2s; font-size: 12px; font-weight: 500; color: #666; background: #fafafa; }
+
+    /* STATUTS PRINCIPAUX */
+    .status-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px; }
+    .status-option { border: 2px solid #e5e5e5; border-radius: 12px; padding: 14px 10px; text-align: center; cursor: pointer; transition: all 0.2s; font-size: 13px; font-weight: 500; color: #666; background: #fafafa; }
     .status-option:hover { border-color: #ff6b35; color: #ff6b35; }
     .status-option.selected { border-color: #ff6b35; background: rgba(255,107,53,0.08); color: #ff6b35; font-weight: 600; }
-    .status-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+    .status-icon { font-size: 22px; display: block; margin-bottom: 6px; }
+
+    /* SOUS-STATUTS LIVRAISON */
+    .sub-status-container { display: none; margin-top: 14px; padding: 16px; background: #f8f8f5; border-radius: 12px; border: 1px solid #e5e5e5; }
+    .sub-status-container.visible { display: block; }
+    .sub-status-title { font-size: 12px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+    .sub-status-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .sub-option { border: 2px solid #e5e5e5; border-radius: 10px; padding: 12px 10px; text-align: center; cursor: pointer; transition: all 0.2s; font-size: 12.5px; font-weight: 500; color: #666; background: #fff; }
+    .sub-option:hover { border-color: #ff6b35; color: #ff6b35; }
+    .sub-option.selected { border-color: #ff6b35; background: rgba(255,107,53,0.08); color: #ff6b35; font-weight: 600; }
+    .sub-icon { font-size: 18px; display: block; margin-bottom: 4px; }
+
     .btn { width: 100%; padding: 15px; background: #1a1a1a; color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 8px; }
     .btn:hover { background: #333; }
     .btn:disabled { background: #ccc; cursor: not-allowed; }
@@ -39,26 +54,30 @@
     .copy-btn { width: 100%; padding: 13px; background: #ff6b35; color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; }
     .copy-btn:hover { background: #e85d20; }
     .copy-btn.copied { background: #2e7d32; }
-    .new-btn { width: 100%; padding: 13px; background: transparent; color: #888; border: 1.5px solid #e5e5e5; border-radius: 12px; font-size: 14px; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; }
+    .new-btn { width: 100%; padding: 13px; background: transparent; color: #888; border: 1.5px solid #e5e5e5; border-radius: 12px; font-size: 14px; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; margin-bottom: 10px; }
     .new-btn:hover { border-color: #1a1a1a; color: #1a1a1a; }
+    .dashboard-link { display: block; text-align: center; margin-top: 6px; font-size: 13px; color: #888; text-decoration: none; padding: 8px; }
+    .dashboard-link:hover { color: #ff6b35; }
     .divider { border: none; border-top: 1px solid #f0f0f0; margin: 20px 0; }
     .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } .status-grid { grid-template-columns: repeat(3, 1fr); } .container { margin: 20px auto; } .card { padding: 20px; } }
+    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } .status-grid { grid-template-columns: repeat(2, 1fr); } .sub-status-grid { grid-template-columns: 1fr; } .container { margin: 20px auto; } .card { padding: 20px; } }
   </style>
 </head>
 <body>
 
 <header>
   <div class="logo">Barber<span>Cosmetic</span></div>
-  <div class="badge">AGENT SAV</div>
+  <div class="nav-links">
+    <a href="/dashboard.html" class="nav-btn">📊 Dashboard</a>
+  </div>
 </header>
 
 <div class="container">
   <div class="card" id="formCard">
     <div class="card-title">Nouveau message client</div>
 
-    <!-- ÉTAPE 1 : Infos expédition -->
+    <!-- ÉTAPE 1 -->
     <div style="margin-bottom: 20px;">
       <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #1a1a1a;">
         <span class="step-badge">1</span> Informations d'expédition
@@ -90,7 +109,6 @@
           <input type="text" id="postalCode" placeholder="ex: 28130" oninput="updateTrackingBtn()" />
         </div>
       </div>
-
       <a id="trackingLinkBtn" class="tracking-btn disabled" href="#" target="_blank" onclick="return checkTrackingBtn()">
         🔍 Voir le suivi en temps réel
       </a>
@@ -98,33 +116,53 @@
 
     <hr class="divider" />
 
-    <!-- ÉTAPE 2 : Statut constaté -->
+    <!-- ÉTAPE 2 -->
     <div style="margin-bottom: 20px;">
       <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #1a1a1a;">
         <span class="step-badge">2</span> Statut constaté sur le site transporteur
       </div>
+
       <div class="status-grid">
-        <div class="status-option" onclick="selectStatus('transit')">
+        <div class="status-option" onclick="selectMainStatus('preparation', this)">
+          <span class="status-icon">🏭</span>En préparation
+        </div>
+        <div class="status-option" onclick="selectMainStatus('transit', this)">
           <span class="status-icon">🚚</span>En transit
         </div>
-        <div class="status-option" onclick="selectStatus('pending')">
-          <span class="status-icon">⏳</span>En attente
+        <div class="status-option" onclick="selectMainStatus('delivered', this)">
+          <span class="status-icon">📦</span>Livré
         </div>
-        <div class="status-option" onclick="selectStatus('delivered')">
-          <span class="status-icon">✅</span>Livré
-        </div>
-        <div class="status-option" onclick="selectStatus('undelivered')">
-          <span class="status-icon">🔔</span>Avis passage
-        </div>
-        <div class="status-option" onclick="selectStatus('exception')">
-          <span class="status-icon">⚠️</span>Anomalie
+      </div>
+
+      <!-- SOUS-STATUTS (visible uniquement si "Livré") -->
+      <div class="sub-status-container" id="subStatusContainer">
+        <div class="sub-status-title">Préciser la situation</div>
+        <div class="sub-status-grid">
+          <div class="sub-option" onclick="selectSubStatus('delivered_ok', this)">
+            <span class="sub-icon">✅</span>Livré normalement
+          </div>
+          <div class="sub-option" onclick="selectSubStatus('delivered_late_minor', this)">
+            <span class="sub-icon">⏰</span>Retard léger (&lt;5 jours)
+          </div>
+          <div class="sub-option" onclick="selectSubStatus('delivered_late_major', this)">
+            <span class="sub-icon">⌛</span>Retard important (&gt;5 jours)
+          </div>
+          <div class="sub-option" onclick="selectSubStatus('lost_not_delivered', this)">
+            <span class="sub-icon">❓</span>Perdu (suivi = non livré)
+          </div>
+          <div class="sub-option" onclick="selectSubStatus('lost_marked_delivered', this)">
+            <span class="sub-icon">🔍</span>Perdu (suivi = livré)
+          </div>
+          <div class="sub-option" onclick="selectSubStatus('damaged', this)">
+            <span class="sub-icon">❌</span>Produit défectueux/cassé
+          </div>
         </div>
       </div>
     </div>
 
     <hr class="divider" />
 
-    <!-- ÉTAPE 3 : Message client -->
+    <!-- ÉTAPE 3 -->
     <div style="margin-bottom: 20px;">
       <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #1a1a1a;">
         <span class="step-badge">3</span> Message du client
@@ -149,15 +187,14 @@
     <button class="new-btn" onclick="resetForm()">
       ↩ Nouveau message
     </button>
-    <a href="/dashboard.html" style="display:block; text-align:center; margin-top:10px; font-size:13px; color:#888; text-decoration:none; padding:10px;">
-      📊 Voir le dashboard
-    </a>
+    <a href="/dashboard.html" class="dashboard-link">📊 Voir le dashboard</a>
   </div>
 </div>
 
 <script>
   const API_URL = window.location.origin;
-  let selectedStatus = '';
+  let mainStatus = '';
+  let subStatus = '';
 
   const TRACKING_URLS = {
     mondialrelay: (num, cp) => `https://www.mondialrelay.fr/suivi-de-colis/?numeroExpedition=${num}&codePostal=${cp}`,
@@ -168,11 +205,14 @@
   };
 
   const STATUS_LABELS = {
+    preparation: "En préparation dans nos locaux",
     transit: "En transit — colis en route",
-    pending: "En attente de prise en charge",
-    delivered: "Livré — client conteste la réception",
-    undelivered: "Tentative de livraison échouée / avis de passage",
-    exception: "Anomalie / incident détecté",
+    delivered_ok: "Livré normalement",
+    delivered_late_minor: "Livré avec retard léger (moins de 5 jours)",
+    delivered_late_major: "Livré avec retard important (plus de 5 jours)",
+    lost_not_delivered: "Colis perdu — suivi indique non livré",
+    lost_marked_delivered: "Colis perdu — suivi indique livré mais client n'a pas reçu",
+    damaged: "Produit défectueux ou endommagé à la réception",
   };
 
   function updateTrackingBtn() {
@@ -180,7 +220,6 @@
     const trackingNumber = document.getElementById('trackingNumber').value.trim();
     const postalCode = document.getElementById('postalCode').value.trim();
     const btn = document.getElementById('trackingLinkBtn');
-
     if (carrier && trackingNumber) {
       const url = TRACKING_URLS[carrier](trackingNumber, postalCode);
       btn.href = url;
@@ -192,48 +231,62 @@
   }
 
   function checkTrackingBtn() {
-    const btn = document.getElementById('trackingLinkBtn');
-    if (btn.classList.contains('disabled')) return false;
-    return true;
+    return !document.getElementById('trackingLinkBtn').classList.contains('disabled');
   }
 
-  function selectStatus(status) {
-    selectedStatus = status;
-    document.querySelectorAll('.status-option').forEach(el => el.classList.remove('selected'));
-    event.currentTarget.classList.add('selected');
+  function selectMainStatus(status, el) {
+    mainStatus = status;
+    subStatus = '';
+    document.querySelectorAll('.status-option').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    document.querySelectorAll('.sub-option').forEach(e => e.classList.remove('selected'));
+
+    const subContainer = document.getElementById('subStatusContainer');
+    if (status === 'delivered') {
+      subContainer.classList.add('visible');
+    } else {
+      subContainer.classList.remove('visible');
+    }
+  }
+
+  function selectSubStatus(status, el) {
+    subStatus = status;
+    document.querySelectorAll('.sub-option').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
   }
 
   async function generateReply() {
     const message = document.getElementById('message').value.trim();
     const orderId = document.getElementById('orderId').value.trim();
     const trackingNumber = document.getElementById('trackingNumber').value.trim();
+    const postalCode = document.getElementById('postalCode').value.trim();
     const carrier = document.getElementById('carrier').value;
 
-    if (!message) {
-      alert('Veuillez coller le message du client.');
-      return;
-    }
+    if (!message) { alert('Veuillez coller le message du client.'); return; }
 
     const btn = document.getElementById('submitBtn');
     btn.disabled = true;
     btn.innerHTML = '<div class="spinner"></div> Génération en cours...';
 
-    // Enrichir le message avec le statut constaté
+    const finalStatus = subStatus || mainStatus;
+    const statusLabel = STATUS_LABELS[finalStatus] || '';
+
     let enrichedMessage = message;
-    if (selectedStatus && STATUS_LABELS[selectedStatus]) {
-      enrichedMessage = `[STATUT CONSTATÉ SUR LE SITE TRANSPORTEUR : ${STATUS_LABELS[selectedStatus]}]\n\n${message}`;
-    }
-    if (trackingNumber) {
-      enrichedMessage = `[NUMÉRO DE SUIVI : ${trackingNumber}]\n` + enrichedMessage;
+    if (statusLabel) {
+      enrichedMessage = `[STATUT CONSTATÉ : ${statusLabel}]\n[NUMÉRO DE SUIVI : ${trackingNumber || 'N/A'}]\n\n${message}`;
     }
 
     try {
       const response = await fetch(`${API_URL}/reply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          message: enrichedMessage, 
+        body: JSON.stringify({
+          message: enrichedMessage,
           orderId: orderId || null,
+          carrier,
+          trackingNumber,
+          postalCode,
+          trackingStatus: statusLabel,
         }),
       });
 
@@ -241,7 +294,6 @@
       document.getElementById('replyBox').textContent = data.reply;
       document.getElementById('formCard').style.display = 'none';
       document.getElementById('resultCard').classList.add('visible');
-
     } catch (error) {
       alert('Erreur de connexion. Vérifiez que le serveur est en ligne.');
     } finally {
@@ -256,10 +308,7 @@
     const btn = document.getElementById('copyBtn');
     btn.textContent = '✅ Copié !';
     btn.classList.add('copied');
-    setTimeout(() => {
-      btn.innerHTML = '📋 Copier la réponse';
-      btn.classList.remove('copied');
-    }, 2000);
+    setTimeout(() => { btn.innerHTML = '📋 Copier la réponse'; btn.classList.remove('copied'); }, 2000);
   }
 
   function resetForm() {
@@ -268,8 +317,9 @@
     document.getElementById('trackingNumber').value = '';
     document.getElementById('postalCode').value = '';
     document.getElementById('carrier').value = '';
-    selectedStatus = '';
-    document.querySelectorAll('.status-option').forEach(el => el.classList.remove('selected'));
+    mainStatus = ''; subStatus = '';
+    document.querySelectorAll('.status-option, .sub-option').forEach(e => e.classList.remove('selected'));
+    document.getElementById('subStatusContainer').classList.remove('visible');
     document.getElementById('trackingLinkBtn').href = '#';
     document.getElementById('trackingLinkBtn').classList.add('disabled');
     document.getElementById('resultCard').classList.remove('visible');
