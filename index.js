@@ -78,6 +78,7 @@ async function initDB() {
     ALTER TABLE messages ADD COLUMN IF NOT EXISTS corrected_reply TEXT;
     ALTER TABLE messages ADD COLUMN IF NOT EXISTS feedback VARCHAR(10);
     ALTER TABLE messages ADD COLUMN IF NOT EXISTS category VARCHAR(50);
+    ALTER TABLE messages ALTER COLUMN order_id DROP NOT NULL;
   `);
   console.log("✅ Base de données initialisée");
 }
