@@ -26,7 +26,7 @@ async function initDB() {
       carrier VARCHAR(50),
       tracking_number VARCHAR(100),
       postal_code VARCHAR(20),
-      status VARCHAR(50) DEFAULT 'en_cours',
+      status VARCHAR(100) DEFAULT 'en_cours',
       notes TEXT,
       refund_client DECIMAL(10,2),
       refund_packlink DECIMAL(10,2),
@@ -36,10 +36,13 @@ async function initDB() {
 
     CREATE TABLE IF NOT EXISTS messages (
       id SERIAL PRIMARY KEY,
-      order_id VARCHAR(50) NOT NULL,
+      order_id VARCHAR(50),
       customer_message TEXT NOT NULL,
       agent_reply TEXT NOT NULL,
-      tracking_status VARCHAR(100),
+      corrected_reply TEXT,
+      feedback VARCHAR(10),
+      category VARCHAR(50),
+      tracking_status VARCHAR(255),
       created_at TIMESTAMP DEFAULT NOW()
     );
 
@@ -57,12 +60,24 @@ async function initDB() {
       updated_at TIMESTAMP DEFAULT NOW()
     );
 
+    CREATE TABLE IF NOT EXISTS examples (
+      id SERIAL PRIMARY KEY,
+      category VARCHAR(50),
+      customer_message TEXT NOT NULL,
+      good_reply TEXT NOT NULL,
+      tracking_status VARCHAR(255),
+      created_at TIMESTAMP DEFAULT NOW()
+    );
+
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS refund_client DECIMAL(10,2);
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS refund_packlink DECIMAL(10,2);
     ALTER TABLE disputes ADD COLUMN IF NOT EXISTS transmitted_packlink BOOLEAN DEFAULT FALSE;
     ALTER TABLE disputes ADD COLUMN IF NOT EXISTS transmitted_at TIMESTAMP;
     ALTER TABLE disputes ADD COLUMN IF NOT EXISTS resolution VARCHAR(50);
     ALTER TABLE messages ALTER COLUMN tracking_status TYPE VARCHAR(255);
+    ALTER TABLE messages ADD COLUMN IF NOT EXISTS corrected_reply TEXT;
+    ALTER TABLE messages ADD COLUMN IF NOT EXISTS feedback VARCHAR(10);
+    ALTER TABLE messages ADD COLUMN IF NOT EXISTS category VARCHAR(50);
   `);
   console.log("✅ Base de données initialisée");
 }
@@ -104,7 +119,7 @@ COLIS PERDU (suivi = non livré) :
 
 COLIS PERDU (suivi = livré mais client n'a pas reçu) :
 - S'excuser et prendre la situation au sérieux
-- Demander les vérifications préliminaires : boîte aux lettres, voisins, point relais, avis de passage
+- Demander vérifications préliminaires : boîte aux lettres, voisins, point relais, avis de passage
 - Si toujours introuvable, demander d'envoyer à mlecflow@gmail.com :
   Objet : "Contestation livraison - N° de suivi XXXXX"
   • Lettre sur l'honneur attestant la non-réception
@@ -115,9 +130,8 @@ COLIS PERDU (suivi = livré mais client n'a pas reçu) :
 PRODUIT DÉFECTUEUX OU ENDOMMAGÉ :
 - S'excuser sincèrement et sans condition
 - Proposer un remboursement partiel au prorata des dégâts
-  Exemple : si 1/3 du produit est inutilisable → remboursement de 1/3 du prix
 - Si produit totalement inutilisable → remboursement total ou renvoi au choix du client
-- Demander une photo du produit endommagé pour traiter rapidement
+- Demander une photo du produit endommagé
 - Contact : mlecflow@gmail.com
 
 RÈGLES DE COMMUNICATION :
@@ -129,15 +143,49 @@ RÈGLES DE COMMUNICATION :
 - Signer : "L'équipe BarberCosmetic"
 - Contact : mlecflow@gmail.com`;
 
-async function generateReply(customerMessage, orderInfo = null, history = []) {
+// Détection automatique de catégorie
+function detectCategory(message, trackingStatus) {
+  const msg = (message + ' ' + (trackingStatus || '')).toLowerCase();
+  if (msg.includes('perdu') || msg.includes('non reçu') || msg.includes('livré') && msg.includes('reçu')) return 'litige';
+  if (msg.includes('retard') || msg.includes('délai') || msg.includes('transit') || msg.includes('suivi')) return 'suivi';
+  if (msg.includes('défectueux') || msg.includes('cassé') || msg.includes('endommagé') || msg.includes('abîmé')) return 'defectueux';
+  if (msg.includes('retour') || msg.includes('remboursement') || msg.includes('rembours')) return 'retour';
+  return 'general';
+}
+
+// Récupérer les exemples similaires
+async function getSimilarExamples(category, limit = 4) {
+  try {
+    const result = await pool.query(
+      "SELECT customer_message, good_reply FROM examples WHERE category = $1 ORDER BY created_at DESC LIMIT $2",
+      [category, limit]
+    );
+    return result.rows;
+  } catch (e) {
+    return [];
+  }
+}
+
+async function generateReply(customerMessage, orderInfo = null, history = [], examples = []) {
   let context = "";
+
+  if (examples.length > 0) {
+    context += `[EXEMPLES DE BONNES RÉPONSES VALIDÉES PAR L'ÉQUIPE]\n`;
+    examples.forEach((ex, i) => {
+      context += `Exemple ${i + 1} :\nClient : ${ex.customer_message}\nBonne réponse : ${ex.good_reply}\n\n`;
+    });
+    context += `---\n\n`;
+  }
+
   if (orderInfo) context += `[COMMANDE AMAZON]\n${JSON.stringify(orderInfo, null, 2)}\n\n`;
+
   if (history.length > 0) {
     context += `[HISTORIQUE DES ÉCHANGES]\n`;
     history.forEach((h, i) => {
       context += `Échange ${i + 1} :\nClient : ${h.customer_message}\nRéponse : ${h.agent_reply}\n\n`;
     });
   }
+
   context += `[MESSAGE CLIENT]\n${customerMessage}`;
 
   const response = await axios.post(
@@ -173,6 +221,9 @@ app.post("/reply", async (req, res) => {
     const { message, orderId, carrier, trackingNumber, postalCode, trackingStatus } = req.body;
     if (!message) return res.status(400).json({ error: "Message manquant" });
 
+    const category = detectCategory(message, trackingStatus);
+    const examples = await getSimilarExamples(category);
+
     let history = [];
     if (orderId) {
       const histResult = await pool.query(
@@ -188,8 +239,9 @@ app.post("/reply", async (req, res) => {
     }
 
     const orderInfo = orderId ? { orderId, carrier, trackingNumber } : null;
-    const reply = await generateReply(enrichedMessage, orderInfo, history);
+    const reply = await generateReply(enrichedMessage, orderInfo, history, examples);
 
+    let messageId = null;
     if (orderId) {
       await pool.query(`
         INSERT INTO orders (order_id, carrier, tracking_number, postal_code)
@@ -199,17 +251,43 @@ app.post("/reply", async (req, res) => {
           tracking_number = EXCLUDED.tracking_number,
           updated_at = NOW()
       `, [orderId, carrier, trackingNumber, postalCode]);
-
-      await pool.query(
-        "INSERT INTO messages (order_id, customer_message, agent_reply, tracking_status) VALUES ($1, $2, $3, $4)",
-        [orderId, message, reply, trackingStatus]
-      );
     }
 
-    res.json({ reply });
+    const msgResult = await pool.query(
+      "INSERT INTO messages (order_id, customer_message, agent_reply, tracking_status, category) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+      [orderId || null, message, reply, trackingStatus, category]
+    );
+    messageId = msgResult.rows[0].id;
+
+    res.json({ reply, messageId, category, examplesUsed: examples.length });
   } catch (error) {
     console.error("Erreur:", error.message);
     res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
+// Soumettre un feedback
+app.post("/feedback", async (req, res) => {
+  try {
+    const { messageId, feedback, correctedReply, customerMessage, trackingStatus } = req.body;
+
+    await pool.query(
+      "UPDATE messages SET feedback = $1, corrected_reply = $2 WHERE id = $3",
+      [feedback, correctedReply || null, messageId]
+    );
+
+    // Si correction fournie → sauvegarder comme exemple
+    if (feedback === 'bad' && correctedReply) {
+      const category = detectCategory(customerMessage, trackingStatus);
+      await pool.query(
+        "INSERT INTO examples (category, customer_message, good_reply, tracking_status) VALUES ($1, $2, $3, $4)",
+        [category, customerMessage, correctedReply, trackingStatus]
+      );
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -315,7 +393,23 @@ app.get("/stats", async (req, res) => {
         COALESCE(SUM(refund_packlink), 0) as total_recupere_packlink
       FROM orders
     `);
-    res.json(stats.rows[0]);
+
+    const feedbackStats = await pool.query(`
+      SELECT
+        COUNT(*) as total_messages,
+        COUNT(CASE WHEN feedback = 'good' THEN 1 END) as good_feedback,
+        COUNT(CASE WHEN feedback = 'bad' THEN 1 END) as bad_feedback,
+        COUNT(CASE WHEN corrected_reply IS NOT NULL THEN 1 END) as corrections
+      FROM messages
+    `);
+
+    const examplesCount = await pool.query(`SELECT COUNT(*) as total FROM examples`);
+
+    res.json({
+      ...stats.rows[0],
+      ...feedbackStats.rows[0],
+      examples_count: examplesCount.rows[0].total
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
