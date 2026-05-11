@@ -11,12 +11,10 @@
     header { background: #1a1a1a; padding: 18px 32px; display: flex; align-items: center; justify-content: space-between; }
     .logo { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -0.5px; }
     .logo span { color: #ff6b35; }
-    .nav-links { display: flex; gap: 12px; }
     .nav-btn { background: rgba(255,107,53,0.15); border: 1px solid rgba(255,107,53,0.3); color: #ff6b35; font-size: 13px; font-weight: 600; padding: 8px 16px; border-radius: 20px; cursor: pointer; text-decoration: none; }
     .nav-btn:hover { background: rgba(255,107,53,0.25); }
     .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
     .card { background: #fff; border-radius: 16px; padding: 32px; margin-bottom: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
-    .card-title { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 20px; }
     .step-badge { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: #ff6b35; color: #fff; border-radius: 50%; font-size: 12px; font-weight: 700; margin-right: 8px; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
     .form-group { display: flex; flex-direction: column; gap: 8px; }
@@ -27,15 +25,11 @@
     .tracking-btn { width: 100%; padding: 13px; background: #1a73e8; color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; margin-top: 8px; }
     .tracking-btn:hover { background: #1557b0; }
     .tracking-btn.disabled { background: #ccc; cursor: not-allowed; pointer-events: none; }
-
-    /* STATUTS PRINCIPAUX */
     .status-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px; }
     .status-option { border: 2px solid #e5e5e5; border-radius: 12px; padding: 14px 10px; text-align: center; cursor: pointer; transition: all 0.2s; font-size: 13px; font-weight: 500; color: #666; background: #fafafa; }
     .status-option:hover { border-color: #ff6b35; color: #ff6b35; }
     .status-option.selected { border-color: #ff6b35; background: rgba(255,107,53,0.08); color: #ff6b35; font-weight: 600; }
     .status-icon { font-size: 22px; display: block; margin-bottom: 6px; }
-
-    /* SOUS-STATUTS LIVRAISON */
     .sub-status-container { display: none; margin-top: 14px; padding: 16px; background: #f8f8f5; border-radius: 12px; border: 1px solid #e5e5e5; }
     .sub-status-container.visible { display: block; }
     .sub-status-title { font-size: 12px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
@@ -44,19 +38,41 @@
     .sub-option:hover { border-color: #ff6b35; color: #ff6b35; }
     .sub-option.selected { border-color: #ff6b35; background: rgba(255,107,53,0.08); color: #ff6b35; font-weight: 600; }
     .sub-icon { font-size: 18px; display: block; margin-bottom: 4px; }
-
     .btn { width: 100%; padding: 15px; background: #1a1a1a; color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 8px; }
     .btn:hover { background: #333; }
     .btn:disabled { background: #ccc; cursor: not-allowed; }
     .result-card { background: #fff; border-radius: 16px; padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); display: none; }
     .result-card.visible { display: block; }
     .reply-box { background: #f8f8f5; border: 1.5px solid #e5e5e5; border-radius: 12px; padding: 20px; font-size: 14px; line-height: 1.8; color: #1a1a1a; white-space: pre-wrap; margin-bottom: 16px; }
+
+    /* FEEDBACK */
+    .feedback-section { border: 1.5px solid #f0f0f0; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .feedback-title { font-size: 12px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+    .feedback-btns { display: flex; gap: 10px; }
+    .feedback-btn { flex: 1; padding: 12px; border: 2px solid #e5e5e5; border-radius: 10px; background: #fff; font-size: 15px; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; font-weight: 600; }
+    .feedback-btn.good:hover { border-color: #2e7d32; background: #e8f5e9; color: #2e7d32; }
+    .feedback-btn.bad:hover { border-color: #c62828; background: #fce4ec; color: #c62828; }
+    .feedback-btn.good.selected { border-color: #2e7d32; background: #e8f5e9; color: #2e7d32; }
+    .feedback-btn.bad.selected { border-color: #c62828; background: #fce4ec; color: #c62828; }
+    .correction-box { display: none; margin-top: 14px; }
+    .correction-box.visible { display: block; }
+    .correction-box label { font-size: 13px; font-weight: 500; color: #444; margin-bottom: 8px; display: block; }
+    .correction-box textarea { min-height: 100px; margin-bottom: 10px; border-color: #e5e5e5; }
+    .save-correction-btn { width: 100%; padding: 11px; background: #c62828; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; }
+    .save-correction-btn:hover { background: #b71c1c; }
+    .feedback-saved { display: none; text-align: center; font-size: 13px; font-weight: 600; padding: 10px; border-radius: 10px; }
+    .feedback-saved.good { background: #e8f5e9; color: #2e7d32; }
+    .feedback-saved.bad { background: #e3f2fd; color: #1565c0; }
+
+    /* CATEGORY BADGE */
+    .category-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; background: rgba(255,107,53,0.1); color: #ff6b35; margin-bottom: 12px; }
+
     .copy-btn { width: 100%; padding: 13px; background: #ff6b35; color: #fff; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; }
     .copy-btn:hover { background: #e85d20; }
     .copy-btn.copied { background: #2e7d32; }
     .new-btn { width: 100%; padding: 13px; background: transparent; color: #888; border: 1.5px solid #e5e5e5; border-radius: 12px; font-size: 14px; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; margin-bottom: 10px; }
     .new-btn:hover { border-color: #1a1a1a; color: #1a1a1a; }
-    .dashboard-link { display: block; text-align: center; margin-top: 6px; font-size: 13px; color: #888; text-decoration: none; padding: 8px; }
+    .dashboard-link { display: block; text-align: center; font-size: 13px; color: #888; text-decoration: none; padding: 8px; }
     .dashboard-link:hover { color: #ff6b35; }
     .divider { border: none; border-top: 1px solid #f0f0f0; margin: 20px 0; }
     .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
@@ -68,18 +84,15 @@
 
 <header>
   <div class="logo">Barber<span>Cosmetic</span></div>
-  <div class="nav-links">
-    <a href="/dashboard.html" class="nav-btn">📊 Dashboard</a>
-  </div>
+  <a href="/dashboard.html" class="nav-btn">📊 Dashboard</a>
 </header>
 
 <div class="container">
   <div class="card" id="formCard">
-    <div class="card-title">Nouveau message client</div>
 
     <!-- ÉTAPE 1 -->
     <div style="margin-bottom: 20px;">
-      <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #1a1a1a;">
+      <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">
         <span class="step-badge">1</span> Informations d'expédition
       </div>
       <div class="form-row">
@@ -118,10 +131,9 @@
 
     <!-- ÉTAPE 2 -->
     <div style="margin-bottom: 20px;">
-      <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #1a1a1a;">
-        <span class="step-badge">2</span> Statut constaté sur le site transporteur
+      <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">
+        <span class="step-badge">2</span> Statut constaté
       </div>
-
       <div class="status-grid">
         <div class="status-option" onclick="selectMainStatus('preparation', this)">
           <span class="status-icon">🏭</span>En préparation
@@ -134,7 +146,6 @@
         </div>
       </div>
 
-      <!-- SOUS-STATUTS (visible uniquement si "Livré") -->
       <div class="sub-status-container" id="subStatusContainer">
         <div class="sub-status-title">Préciser la situation</div>
         <div class="sub-status-grid">
@@ -142,10 +153,10 @@
             <span class="sub-icon">✅</span>Livré normalement
           </div>
           <div class="sub-option" onclick="selectSubStatus('delivered_late_minor', this)">
-            <span class="sub-icon">⏰</span>Retard léger (&lt;5 jours)
+            <span class="sub-icon">⏰</span>Retard léger (&lt;5j)
           </div>
           <div class="sub-option" onclick="selectSubStatus('delivered_late_major', this)">
-            <span class="sub-icon">⌛</span>Retard important (&gt;5 jours)
+            <span class="sub-icon">⌛</span>Retard important (&gt;5j)
           </div>
           <div class="sub-option" onclick="selectSubStatus('lost_not_delivered', this)">
             <span class="sub-icon">❓</span>Perdu (suivi = non livré)
@@ -154,7 +165,7 @@
             <span class="sub-icon">🔍</span>Perdu (suivi = livré)
           </div>
           <div class="sub-option" onclick="selectSubStatus('damaged', this)">
-            <span class="sub-icon">❌</span>Produit défectueux/cassé
+            <span class="sub-icon">❌</span>Produit défectueux
           </div>
         </div>
       </div>
@@ -164,7 +175,7 @@
 
     <!-- ÉTAPE 3 -->
     <div style="margin-bottom: 20px;">
-      <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #1a1a1a;">
+      <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">
         <span class="step-badge">3</span> Message du client
       </div>
       <textarea id="message" placeholder="Collez ici le message reçu sur Amazon Seller Central..."></textarea>
@@ -177,16 +188,35 @@
 
   <!-- RÉSULTAT -->
   <div class="result-card" id="resultCard">
-    <div style="font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 20px;">
+    <div style="font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px;">
       Réponse générée
     </div>
+    <div class="category-badge" id="categoryBadge"></div>
+
     <div class="reply-box" id="replyBox"></div>
+
+    <!-- FEEDBACK -->
+    <div class="feedback-section">
+      <div class="feedback-title">Cette réponse est-elle adaptée ?</div>
+      <div class="feedback-btns">
+        <button class="feedback-btn good" onclick="submitFeedback('good')">👍 Bonne réponse</button>
+        <button class="feedback-btn bad" onclick="submitFeedback('bad')">👎 À corriger</button>
+      </div>
+
+      <div class="correction-box" id="correctionBox">
+        <label style="margin-top:12px;">✏️ Écris la meilleure réponse pour ce type de message :</label>
+        <textarea id="correctionText"></textarea>
+        <button class="save-correction-btn" onclick="saveCorrection()">💾 Sauvegarder — l'IA va apprendre</button>
+      </div>
+
+      <div class="feedback-saved good" id="feedbackSavedGood">✅ Merci ! Réponse validée.</div>
+      <div class="feedback-saved bad" id="feedbackSavedBad">🧠 Correction sauvegardée — l'IA s'améliore !</div>
+    </div>
+
     <button class="copy-btn" id="copyBtn" onclick="copyReply()">
       📋 Copier la réponse
     </button>
-    <button class="new-btn" onclick="resetForm()">
-      ↩ Nouveau message
-    </button>
+    <button class="new-btn" onclick="resetForm()">↩ Nouveau message</button>
     <a href="/dashboard.html" class="dashboard-link">📊 Voir le dashboard</a>
   </div>
 </div>
@@ -195,6 +225,10 @@
   const API_URL = window.location.origin;
   let mainStatus = '';
   let subStatus = '';
+  let currentMessageId = null;
+  let currentCustomerMessage = '';
+  let currentTrackingStatus = '';
+  let currentCategory = '';
 
   const TRACKING_URLS = {
     mondialrelay: (num, cp) => `https://www.mondialrelay.fr/suivi-de-colis/?numeroExpedition=${num}&codePostal=${cp}`,
@@ -215,14 +249,21 @@
     damaged: "Produit défectueux ou endommagé à la réception",
   };
 
+  const CATEGORY_LABELS = {
+    litige: "🔍 Litige",
+    suivi: "🚚 Suivi / Retard",
+    defectueux: "❌ Défectueux",
+    retour: "🔄 Retour",
+    general: "💬 Général",
+  };
+
   function updateTrackingBtn() {
     const carrier = document.getElementById('carrier').value;
     const trackingNumber = document.getElementById('trackingNumber').value.trim();
     const postalCode = document.getElementById('postalCode').value.trim();
     const btn = document.getElementById('trackingLinkBtn');
     if (carrier && trackingNumber) {
-      const url = TRACKING_URLS[carrier](trackingNumber, postalCode);
-      btn.href = url;
+      btn.href = TRACKING_URLS[carrier](trackingNumber, postalCode);
       btn.classList.remove('disabled');
     } else {
       btn.href = '#';
@@ -240,13 +281,7 @@
     document.querySelectorAll('.status-option').forEach(e => e.classList.remove('selected'));
     el.classList.add('selected');
     document.querySelectorAll('.sub-option').forEach(e => e.classList.remove('selected'));
-
-    const subContainer = document.getElementById('subStatusContainer');
-    if (status === 'delivered') {
-      subContainer.classList.add('visible');
-    } else {
-      subContainer.classList.remove('visible');
-    }
+    document.getElementById('subStatusContainer').classList.toggle('visible', status === 'delivered');
   }
 
   function selectSubStatus(status, el) {
@@ -270,6 +305,8 @@
 
     const finalStatus = subStatus || mainStatus;
     const statusLabel = STATUS_LABELS[finalStatus] || '';
+    currentTrackingStatus = statusLabel;
+    currentCustomerMessage = message;
 
     let enrichedMessage = message;
     if (statusLabel) {
@@ -280,31 +317,80 @@
       const response = await fetch(`${API_URL}/reply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: enrichedMessage,
-          orderId: orderId || null,
-          carrier,
-          trackingNumber,
-          postalCode,
-          trackingStatus: statusLabel,
-        }),
+        body: JSON.stringify({ message: enrichedMessage, orderId: orderId || null, carrier, trackingNumber, postalCode, trackingStatus: statusLabel }),
       });
 
       const data = await response.json();
+      currentMessageId = data.messageId;
+      currentCategory = data.category;
+
       document.getElementById('replyBox').textContent = data.reply;
+      document.getElementById('correctionText').value = data.reply;
+
+      const badge = document.getElementById('categoryBadge');
+      badge.textContent = CATEGORY_LABELS[data.category] || data.category;
+      if (data.examplesUsed > 0) {
+        badge.textContent += ` · ${data.examplesUsed} exemple(s) utilisé(s)`;
+      }
+
+      // Reset feedback
+      document.querySelectorAll('.feedback-btn').forEach(b => b.classList.remove('selected'));
+      document.getElementById('correctionBox').classList.remove('visible');
+      document.getElementById('feedbackSavedGood').style.display = 'none';
+      document.getElementById('feedbackSavedBad').style.display = 'none';
+
       document.getElementById('formCard').style.display = 'none';
       document.getElementById('resultCard').classList.add('visible');
+
     } catch (error) {
-      alert('Erreur de connexion. Vérifiez que le serveur est en ligne.');
+      alert('Erreur de connexion.');
     } finally {
       btn.disabled = false;
       btn.innerHTML = '✨ Générer la réponse';
     }
   }
 
+  async function submitFeedback(type) {
+    document.querySelectorAll('.feedback-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelector(`.feedback-btn.${type}`).classList.add('selected');
+
+    if (type === 'good') {
+      document.getElementById('correctionBox').classList.remove('visible');
+      await fetch(`${API_URL}/feedback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageId: currentMessageId, feedback: 'good', customerMessage: currentCustomerMessage, trackingStatus: currentTrackingStatus }),
+      });
+      document.getElementById('feedbackSavedGood').style.display = 'block';
+      document.getElementById('feedbackSavedBad').style.display = 'none';
+    } else {
+      document.getElementById('correctionBox').classList.add('visible');
+      document.getElementById('feedbackSavedGood').style.display = 'none';
+    }
+  }
+
+  async function saveCorrection() {
+    const correctedReply = document.getElementById('correctionText').value.trim();
+    if (!correctedReply) { alert('Veuillez écrire une correction.'); return; }
+
+    await fetch(`${API_URL}/feedback`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messageId: currentMessageId,
+        feedback: 'bad',
+        correctedReply,
+        customerMessage: currentCustomerMessage,
+        trackingStatus: currentTrackingStatus,
+      }),
+    });
+
+    document.getElementById('correctionBox').classList.remove('visible');
+    document.getElementById('feedbackSavedBad').style.display = 'block';
+  }
+
   function copyReply() {
-    const text = document.getElementById('replyBox').textContent;
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(document.getElementById('replyBox').textContent);
     const btn = document.getElementById('copyBtn');
     btn.textContent = '✅ Copié !';
     btn.classList.add('copied');
@@ -312,20 +398,15 @@
   }
 
   function resetForm() {
-    document.getElementById('message').value = '';
-    document.getElementById('orderId').value = '';
-    document.getElementById('trackingNumber').value = '';
-    document.getElementById('postalCode').value = '';
+    ['message', 'orderId', 'trackingNumber', 'postalCode'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('carrier').value = '';
     mainStatus = ''; subStatus = '';
     document.querySelectorAll('.status-option, .sub-option').forEach(e => e.classList.remove('selected'));
     document.getElementById('subStatusContainer').classList.remove('visible');
-    document.getElementById('trackingLinkBtn').href = '#';
     document.getElementById('trackingLinkBtn').classList.add('disabled');
     document.getElementById('resultCard').classList.remove('visible');
     document.getElementById('formCard').style.display = 'block';
   }
 </script>
-
 </body>
 </html>
